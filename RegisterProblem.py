@@ -3,6 +3,8 @@ from tkinter import *
 # 콤보 상자 사용을 위해 ttk를 들여온다.
 from tkinter import ttk
 from tkinter import messagebox
+# SQLite3을 사용하기 위해 sqlite3을 들여온다.
+import sqlite3
 
 # 임시 명령
 def doNothing(self):
@@ -57,10 +59,22 @@ lblProblemType.config(bg='#1E1E1E', fg='white')
 lblProblemType.grid(row=4, column=0, sticky=E, padx=2, pady=2)
 
 # 콤보 상자
-strBook = StringVar()
-cbbBook = ttk.Combobox(frmProblemInfo, textvariable=strBook)
+selectedBook = StringVar()
+cbbBook = ttk.Combobox(frmProblemInfo, textvariable=selectedBook)
 cbbBook.grid(row=0, column=1, stick=W, padx=2, pady=2)
-cbbBook['values'] = ('중1', '중2', '중3', '수학', '수학1', '수학2', '확률과 통계', '미적분', '기하', '경제 수학')
+#cbbBook['values'] = ('중1', '중2', '중3', '수학', '수학1', '수학2', '확률과 통계', '미적분', '기하', '경제 수학')
+
+# 콤보 상자에 들어갈 내용을 데이타베이스에서 읽어온다.
+# ================================================================================
+conn = sqlite3.connect("mathProblemDB.db")  # SQLite DB에 연결
+cur = conn.cursor() # Connection으로부터 Cursor 생성
+cur.execute("SELECT name FROM tblBook ORDER BY priority")  # SQL 실행
+rows = cur.fetchall()   # 데이타 fetch
+
+cbbBook['value'] =([row for row in rows])   # 가져온 데이타를 콤보 상자에 담기
+
+conn.close()    # Connection 닫기
+# ================================================================================
 cbbBook.current(0)
 cbbBook.bind("<<ComboboxSelected>>", doNothing)
 

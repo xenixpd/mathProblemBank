@@ -7,13 +7,13 @@ conn = sqlite3.connect("mathProblemDB.db")
 cur = conn.cursor()
 
 # SQL 실행
-cur.execute("SELECT * FROM tblBook ORDER BY priority")
+cur.execute("SELECT name FROM tblBook ORDER BY priority")
 
 # 데이타 fetch
 rows = cur.fetchall()
 
 for row in rows:
-    print(row)
+    print(row[0])
 
 # Connection 닫기
 conn.close()

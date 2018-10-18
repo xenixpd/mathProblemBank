@@ -7,21 +7,40 @@ class MPBCurriTreeView(Frame):
     def __init__(self, master, aRow, aCol):
         Frame.__init__(self, master)
         
+        # 트리에서 선택된 항목의 종류와 ID(기본값)
+        self.selectedCurriType = ''
+        self.selectedCurriID = 0
+
+        # 트리와 스크롤바를 담기 위한 그릇
         self.container = ttk.Frame(master, padding=(3,3,12,12))
 
         #self.lblTitle = Label(self.container, text="<문제 유형 선택>")  # 제목
         self.trvCurri = ttk.Treeview(self.container, selectmode='browse')    # 트리 만들기
-        self.treeYScroll = ttk.Scrollbar(self.container, orient=VERTICAL)   # 스크롤바 만들기
+        #self.treeXScroll = ttk.Scrollbar(self.container, orient=HORIZONTAL)   # 수평 스크롤바 만들기(트리에는 수평 스크롤바가 필요 없는 듯)
+        self.treeYScroll = ttk.Scrollbar(self.container, orient=VERTICAL)   # 수직 스크롤바 만들기
+        self.lblSelectedCurriType = Label(self.container, text='항목 종류')   # 선택한 항목 종류
+        self.lblSelectedCurriID = Label(self.container, text='항목 번호', relief=SUNKEN) # 선택한 항목 ID
 
-        self.trvCurri.bind('<ButtonRelease-1>', self.doSomething)    # 클릭했을 때 할 일
+        #self.trvCurri.bind('<ButtonRelease-1>', self.doSomething)    # 클릭했을 때 할 일
+        self.trvCurri.bind('<<TreeviewSelect>>', self.callback)
+        #self.trvCurri.configure(exportselection=False)  # 트리가 아닌 다른 곳에 마우스 딸깍을 하더라도 트리에서 선택한 것이 사라지지 않도록 처리(동작 안 함)
 
+        # 수평 스크롤바
+        #self.treeXScroll.configure(command=self.trvCurri.yview)
+        #self.trvCurri.configure(xscrollcommand=self.treeXScroll.set)
+
+        # 수직 스크롤바
         self.treeYScroll.configure(command=self.trvCurri.xview)
         self.trvCurri.configure(yscrollcommand=self.treeYScroll.set)
 
-        self.container.grid(row=aRow, column=aCol, sticky=(N, S, E, W))
+        # 그려 넣기
+        self.container.grid(row=aRow, column=aCol, sticky=(N, S, E, W)) # 그릇 그려 넣기. 인스턴스를 생성한 곳에서 이 그릇을 넣을 프레임 등(인수로 받음)을 만들어야 한다.
         #self.lblTitle.grid(row=0, column=0, columnspan=4, sticky=W)
-        self.trvCurri.grid(row=0, column=0, sticky=(N, S, E, W))
-        self.treeYScroll.grid(row=0, column=1, sticky=N+S)
+        self.trvCurri.grid(row=0, column=0, columnspan=2, sticky=(N, S, E, W))    # 트리를 그릇에 넣기
+        #self.treeXScroll.grid(row=1, column=0, columnspan=2, sticky=E+W)  # 수평 스크롤바를 그릇에 넣기
+        self.treeYScroll.grid(row=0, column=2, sticky=N+S)  # 수직 스크롤바를 그릇에 넣기
+        self.lblSelectedCurriType.grid(row=1, column=0, sticky=E+W)
+        self.lblSelectedCurriID.grid(row=1, column=1, sticky=E)
 
         # Handling Resize
         self.container.rowconfigure(0, weight=1)
@@ -29,7 +48,7 @@ class MPBCurriTreeView(Frame):
 
         # Treeview 제목 설정
         self.trvCurri.config(columns=('alive'))
-        self.trvCurri.column('alive', width=50, anchor='center')
+        self.trvCurri.column('alive', width=40, anchor='center')
         self.trvCurri.column('#0', width=300)
         self.trvCurri.heading('alive', text='교육 과정 내인지 여부')
 
@@ -39,10 +58,11 @@ class MPBCurriTreeView(Frame):
         cur.execute("SELECT id, name FROM tblBook ORDER BY priority")   # SQL 실행
         rows = cur.fetchall()   # 데이타 fetch
 
-        # 루트 노드에 책 추가
+        # 교육 과정 관련 트리 만들기
         for row in rows:
             bookID = str(row[0])
-            self.trvCurri.insert('', 'end', 'book' + bookID, text=row[1], tag='book-' + bookID)
+            #self.trvCurri.insert('', 'end', 'book' + bookID, text=row[1], tag='book-' + bookID)
+            self.trvCurri.insert('', 'end', 'book-' + bookID, text=row[1], tag='book')
 
             # 책 아래에 파트 추가
             sqlStr = "SELECT id, name FROM tblPart WHERE bookID = " + str(row[0]) + " ORDER BY priority"
@@ -51,7 +71,8 @@ class MPBCurriTreeView(Frame):
 
             for secondRow in secondRows:
                 partID = str(secondRow[0])
-                self.trvCurri.insert('book' + bookID, 'end', 'part' + partID, text=secondRow[1], tag='part-' + partID)
+                #self.trvCurri.insert('book' + bookID, 'end', 'part' + partID, text=secondRow[1], tag='part-' + partID)
+                self.trvCurri.insert('book-' + bookID, 'end', 'part-' + partID, text=secondRow[1], tag='part')
 
                 # 파트 아래에 장 추가
                 sqlStr = "SELECT id, name FROM tblChapter WHERE partID = " + str(secondRow[0]) + " ORDER BY priority"
@@ -60,7 +81,8 @@ class MPBCurriTreeView(Frame):
 
                 for thirdRow in thirdRows:
                     chapterID = str(thirdRow[0])
-                    self.trvCurri.insert('part' + partID, 'end', 'chapter' + chapterID, text=thirdRow[1], tag='chapter-' + chapterID)
+                    #self.trvCurri.insert('part' + partID, 'end', 'chapter' + chapterID, text=thirdRow[1], tag='chapter-' + chapterID)
+                    self.trvCurri.insert('part-' + partID, 'end', 'chapter-' + chapterID, text=thirdRow[1], tag='chapter')
 
                     # 장 아래에 절 추가
                     sqlStr = "SELECT id, name FROM tblSection WHERE chapterID = " + str(thirdRow[0]) + " ORDER BY priority"
@@ -69,7 +91,8 @@ class MPBCurriTreeView(Frame):
 
                     for fourthRow in fourthRows:
                         sectionID = str(fourthRow[0])
-                        self.trvCurri.insert('chapter' + chapterID, 'end', 'section' + sectionID, text=fourthRow[1], tag='section-' + sectionID)
+                        #self.trvCurri.insert('chapter' + chapterID, 'end', 'section' + sectionID, text=fourthRow[1], tag='section-' + sectionID)
+                        self.trvCurri.insert('chapter-' + chapterID, 'end', 'section-' + sectionID, text=fourthRow[1], tag='section')
 
                         # 절 아래에 절 추가
                         sqlStr = "SELECT id, name, alive FROM tblProblemType WHERE sectionID = " + str(fourthRow[0]) + " ORDER BY priority"
@@ -78,15 +101,47 @@ class MPBCurriTreeView(Frame):
 
                         for fifthRow in fifthRows:
                             problemTypeID = str(fifthRow[0])
-                            self.trvCurri.insert('section' + sectionID, 'end', 'problemType' + problemTypeID, text=fifthRow[1], tag='problemType-' + problemTypeID)
+                            #self.trvCurri.insert('section' + sectionID, 'end', 'problemType' + problemTypeID, text=fifthRow[1], tag='problemType-' + problemTypeID)
+                            #self.trvCurri.insert('section-' + sectionID, 'end', 'problemType-' + problemTypeID, text=fifthRow[1], tag='problemType')
                             
                             if fifthRow[2]:
-                                self.trvCurri.set('problemType' + problemTypeID, 'alive', 'O')
+                                self.trvCurri.insert('section-' + sectionID, 'end', 'problemType-' + problemTypeID, text=fifthRow[1], tag='alive')
+                                self.trvCurri.set('problemType-' + problemTypeID, 'alive', 'O')
                             else:
-                                self.trvCurri.set('problemType' + problemTypeID, 'alive', 'X')
+                                self.trvCurri.insert('section-' + sectionID, 'end', 'problemType-' + problemTypeID, text=fifthRow[1], tag='dead')
+                                self.trvCurri.set('problemType-' + problemTypeID, 'alive', 'X')
+
+        # 트리 색칠
+        #self.trvCurri.tag_configure('book', background='yellow')
+        #self.trvCurri.tag_configure('part', background='skyblue')
+        self.trvCurri.tag_configure('dead', background='#C1C1C1', foreground='red') # 교육 과정 밖의 유형은 배경 회색, 글 빨간색으로 처리
 
         conn.close()    # 데이터베이스에 대한 연결 닫기
+    
+    # 트리의 어떤 항목이 선택되었을 때 실행되는 함수
+    def callback(self, event):
+        #print(self.trvCurri.selection())
+        #print(self.trvCurri.focus().split('-')[0], self.trvCurri.focus().split('-')[1]) # 처음 것은 book, part, chapter, section, problemType 중 하나, 뒤에 것은 ID
+        self.selectedCurriType = self.trvCurri.focus().split('-')[0]
+        self.selectedCurriID = self.trvCurri.focus().split('-')[1]
+        #print(self.selectedCurriType, self.selectedCurriID)
 
+        # 선택한 항목의 종류 알리기
+        if self.selectedCurriType == 'book':
+            self.lblSelectedCurriType['text'] = '책'
+        elif self.selectedCurriType == 'part':
+            self.lblSelectedCurriType['text'] = '부'
+        elif self.selectedCurriType == 'chapter':
+            self.lblSelectedCurriType['text'] = '장'
+        elif self.selectedCurriType == 'section':
+            self.lblSelectedCurriType['text'] = '절'
+        elif self.selectedCurriType == 'problemType':
+            self.lblSelectedCurriType['text'] = '문제 유형'
+
+        # 선택한 항목의 ID 알리기
+        self.lblSelectedCurriID['text'] = self.selectedCurriID
+
+    # 임시
     def doSomething(self, event):
         curItem = self.trvCurri.focus()
         print(self.trvCurri.item(curItem)['tags'][0].split('-')[0], self.trvCurri.item(curItem)['tags'][0].split('-')[1])
@@ -97,6 +152,7 @@ if __name__ == '__main__':
     root.rowconfigure(0, weight=1)
     root.columnconfigure(0, weight=1)
 
-    aTree=MPBCurriTreeview(root, 0, 0)
+    aTree=MPBCurriTreeView(root, 0, 0)
+    #print(aTree.selectedCurriType, aTree.selectedCurriID)
 
     root.mainloop()

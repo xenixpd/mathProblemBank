@@ -11,7 +11,7 @@ root.geometry("640x480")
 root.rowconfigure(0, weight=1)
 root.columnconfigure(0, weight=1)
 
-#aTree = MPBUITools.MPBCurriTreeView(root, 0, 0)
-aTree = MPBCurriTreeView(root, 1, 1)
+#curriTree = MPBUITools.MPBCurriTreeView(root, 0, 0)
+curriTree = MPBCurriTreeView(root, 0, 1)
 
 root.mainloop()

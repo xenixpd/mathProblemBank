@@ -4,7 +4,7 @@ import sqlite3
 
 class MPBCurriTreeView(Frame):
 
-    def __init__(self, master, row=0, col=0):
+    def __init__(self, master, row=0, column=0):
         Frame.__init__(self, master)
         
         # 트리에서 선택된 항목의 종류와 ID(기본값)
@@ -34,7 +34,7 @@ class MPBCurriTreeView(Frame):
         self.trvCurri.configure(yscrollcommand=self.treeYScroll.set)
 
         # 그려 넣기
-        self.container.grid(row=row, column=col, sticky=(N, S, E, W)) # 그릇 그려 넣기. 인스턴스를 생성한 곳에서 이 그릇을 넣을 프레임 등(인수로 받음)을 만들어야 한다.
+        self.container.grid(row=row, column=column, sticky=(N, S, E, W)) # 그릇 그려 넣기. 인스턴스를 생성한 곳에서 이 그릇을 넣을 프레임 등(인수로 받음)을 만들어야 한다.
         #self.lblTitle.grid(row=0, column=0, columnspan=4, sticky=W)
         self.trvCurri.grid(row=0, column=0, columnspan=2, sticky=(N, S, E, W))    # 트리를 그릇에 넣기
         #self.treeXScroll.grid(row=1, column=0, columnspan=2, sticky=E+W)  # 수평 스크롤바를 그릇에 넣기

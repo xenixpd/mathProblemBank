@@ -4,6 +4,9 @@ from tkinter import *
 from PIL import ImageTk, Image
 import easygui
 
+HUGE_FONT = ('맑은 고딕', 16)
+LARGE_FONT = ('맑은 고딕', 11)
+
 class App(Frame):
     
     def __init__(self, master):

@@ -1,3 +1,4 @@
+# 다시 할 것
 from tkinter import filedialog
 from tkinter import *
 #from tkinter import ttk
@@ -32,7 +33,7 @@ class App(Frame):
 
         # 그릇에 담기
         self.container.grid(row=row, column=column, sticky=(N, S, E, W))
-        self.lblImage.grid(row=0, column=1, rowspan=3, sticky=(N, S, E, W), padx=5, pady=5)
+        self.lblImage.grid(row=0, column=1, rowspan=3, padx=5, pady=5)
         self.btnSelectImageFile.grid(row=0, column=0, padx=5, pady=5)
         self.btnPasteFromClipboard.grid(row=1, column=0, padx=5, pady=5)
         self.btnInitializeImage.grid(row=2, column=0, padx=5, pady=5)
@@ -45,7 +46,10 @@ class App(Frame):
         if selectedFileName != '':
             #print(self.selectedFileName)
             original = Image.open(selectedFileName)
-            print(original.size, self.lblImage.size[0])
+            print(original.size[0], original.size[1], self.lblImage.winfo_width(), self.lblImage.winfo_height())
+            img = ImageTk.PhotoImage(original)
+            self.lblImage.configure(image=img)
+            self.lblImage.image = img
 
     def pasteFromClipboard(self):
         print("Paste from Clipboard")

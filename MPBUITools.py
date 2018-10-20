@@ -230,35 +230,73 @@ class MPBProblemImageRegistration(Frame):
         self.lblInfo = Label(self.container)
         self.lblInfo.config(justify=RIGHT, wraplength=width)
 
+        # 편집에 사용된 단 수
+        self.lblColumnsUsed = Label(self.container, text='편집 시 사용할 단의 개수: ')
+        self.cbbColmunsUsed = ttk.Combobox(self.container)   # 콤보 상자
+
+        # 예상 난이도
+        self.lblDifficulty = Label(self.container, text='예상 난이도: ')
+        self.cbbDifficulty = ttk.Combobox(self.container)
+
+        conn = sqlite3.connect("mathProblemDB.db")  # SQLite DB에 연결
+        cur = conn.cursor() # Connection으로부터 Cursor 생성
+
+        cur.execute("SELECT columns FROM tblColumnsUsed ORDER BY columns")  # SQL 실행
+        rows = cur.fetchall()   # 데이타 fetch
+        self.cbbColmunsUsed['value'] =([row for row in rows])   # 가져온 데이타를 콤보 상자에 담기
+        
+        cur.execute("SELECT difficulty FROM tblDifficulty ORDER BY difficulty")  # SQL 실행
+        rows = cur.fetchall()   # 데이타 fetch
+        self.cbbDifficulty['value'] =([row for row in rows])   # 가져온 데이타를 콤보 상자에 담기
+
+        conn.close()    # Connection 닫기
+
+
         # 프레임에 넣기. 기본은 N(아래쪽에 단추 배치)
         if pos == S:
-            self.lblTitle.grid(row=0, column=0, columnspan=3, sticky=W)
-            self.btnSelectImage.grid(row=1, column=0, padx=5, pady=5, sticky=NS)
-            self.btnPasteFromClipboard.grid(row=1, column=1, padx=5, pady=5, sticky=NS)    
-            self.btnInitializeImage.grid(row=1, column=2, padx=5, pady=5)
-            self.lblImage.grid(row=2, column=0, rowspan=3, columnspan=3, padx=5, pady=5, sticky=NSEW)
-            self.lblInfo.grid(row=5, column=0, columnspan=3, padx=2, pady=2, sticky=E)
+            self.lblTitle.grid(row=0, column=0, columnspan=6, sticky=W)
+            self.btnSelectImage.grid(row=1, column=0, padx=5, pady=5)
+            self.btnPasteFromClipboard.grid(row=1, column=2, padx=5, pady=5)    
+            self.btnInitializeImage.grid(row=1, column=4, padx=5, pady=5)
+            self.lblImage.grid(row=2, column=0, rowspan=3, columnspan=6, padx=5, pady=5, sticky=NSEW)
+            self.lblInfo.grid(row=5, column=0, columnspan=6, padx=2, pady=2, sticky=E)
+            self.lblColumnsUsed.grid(row=6, column=0, columnspan=3, padx=2, pady=2, sticky=E)
+            self.cbbColmunsUsed.grid(row=6, column=3, columnspan=3, sticky=W, padx=2, pady=2)
+            self.lblDifficulty.grid(row=7, column=0, columnspan=3, padx=2, pady=2, sticky=E)
+            self.cbbDifficulty.grid(row=7, column=3, columnspan=3, sticky=W, padx=2, pady=2)
         elif pos == E:
-            self.lblTitle.grid(row=0, column=0, columnspan=4, sticky=W)
-            self.btnSelectImage.grid(row=1, column=0, padx=5, pady=5, sticky=NS)
-            self.btnPasteFromClipboard.grid(row=2, column=0, padx=5, pady=5, sticky=NS)    
+            self.lblTitle.grid(row=0, column=0, columnspan=6, sticky=W)
+            self.btnSelectImage.grid(row=1, column=0, padx=5, pady=5)
+            self.btnPasteFromClipboard.grid(row=2, column=0, padx=5, pady=5)
             self.btnInitializeImage.grid(row=3, column=0, padx=5, pady=5)
-            self.lblImage.grid(row=1, column=1, rowspan=3, columnspan=3, padx=5, pady=5, sticky=NSEW)
-            self.lblInfo.grid(row=4, column=3, columnspan=3, padx=2, pady=2, sticky=E)
+            self.lblImage.grid(row=1, column=1, rowspan=3, columnspan=6, padx=5, pady=5, sticky=NSEW)
+            self.lblInfo.grid(row=4, column=1, columnspan=6, padx=2, pady=2, sticky=E)
+            self.lblColumnsUsed.grid(row=5, column=1, columnspan=4, padx=2, pady=2, sticky=E)
+            self.cbbColmunsUsed.grid(row=5, column=5, columnspan=2, sticky=EW, padx=2, pady=2)
+            self.lblDifficulty.grid(row=6, column=1, columnspan=4, padx=2, pady=2, sticky=E)
+            self.cbbDifficulty.grid(row=6, column=5, columnspan=2, sticky=EW, padx=2, pady=2)
         elif pos == W:
-            self.lblTitle.grid(row=0, column=0, columnspan=4, sticky=W)
-            self.lblImage.grid(row=1, column=0, rowspan=3, columnspan=3, padx=5, pady=5, sticky=NSEW)
-            self.btnSelectImage.grid(row=1, column=4, padx=5, pady=5, sticky=NS)
-            self.btnPasteFromClipboard.grid(row=2, column=4, padx=5, pady=5, sticky=NS)    
-            self.btnInitializeImage.grid(row=3, column=4, padx=5, pady=5)
-            self.lblInfo.grid(row=4, column=0, columnspan=3, padx=2, pady=2, sticky=E)
+            self.lblTitle.grid(row=0, column=0, columnspan=6, sticky=W)
+            self.lblImage.grid(row=1, column=0, rowspan=3, columnspan=6, padx=5, pady=5)
+            self.btnSelectImage.grid(row=1, column=6, padx=5, pady=5)
+            self.btnPasteFromClipboard.grid(row=2, column=6, padx=5, pady=5)    
+            self.btnInitializeImage.grid(row=3, column=6, padx=5, pady=5)
+            self.lblInfo.grid(row=4, column=0, columnspan=6, padx=2, pady=2, sticky=E)
+            self.lblColumnsUsed.grid(row=5, column=0, columnspan=4, padx=2, pady=2, sticky=E)
+            self.cbbColmunsUsed.grid(row=5, column=4, sticky=EW, padx=2, pady=2)
+            self.lblDifficulty.grid(row=6, column=0, columnspan=4, padx=2, pady=2, sticky=E)
+            self.cbbDifficulty.grid(row=6, column=4, sticky=EW, padx=2, pady=2)
         else:
-            self.lblTitle.grid(row=0, column=0, columnspan=3, sticky=W)
-            self.lblImage.grid(row=1, column=0, rowspan=3, columnspan=3, padx=5, pady=5, sticky=NSEW)
-            self.btnSelectImage.grid(row=4, column=0, padx=5, pady=5, sticky=NS)
-            self.btnPasteFromClipboard.grid(row=4, column=1, padx=5, pady=5, sticky=NS)    
-            self.btnInitializeImage.grid(row=4, column=2, padx=5, pady=5)
-            self.lblInfo.grid(row=5, column=0, columnspan=3, padx=2, pady=2, sticky=E)
+            self.lblTitle.grid(row=0, column=0, columnspan=6, sticky=W)
+            self.lblImage.grid(row=1, column=0, rowspan=3, columnspan=6, padx=5, pady=5, sticky=NSEW)
+            self.btnSelectImage.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
+            self.btnPasteFromClipboard.grid(row=4, column=2, columnspan=2, padx=5, pady=5)    
+            self.btnInitializeImage.grid(row=4, column=4, columnspan=2, padx=5, pady=5)
+            self.lblInfo.grid(row=5, column=0, columnspan=6, padx=2, pady=2, sticky=E)
+            self.lblColumnsUsed.grid(row=6, column=0, columnspan=3, padx=2, pady=2, sticky=E)
+            self.cbbColmunsUsed.grid(row=6, column=3, columnspan=3, sticky=W, padx=2, pady=2)
+            self.lblDifficulty.grid(row=7, column=0, columnspan=3, padx=2, pady=2, sticky=E)
+            self.cbbDifficulty.grid(row=7, column=3, columnspan=3, sticky=W, padx=2, pady=2)
 
         self.container.grid(row=row, column=column, padx=10, pady=10, sticky=N)
 
@@ -350,7 +388,7 @@ if __name__ == '__main__':
     #aTree.grid(row=0, column=0)    # 안 됨. 클래스 안에서 써야함.
     #aTree.pack(side=LEFT)  # 안 됨. 클래스 안에서 써야함.
 
-    aImageRegistration = MPBProblemImageRegistration(root, row=0, column=1, width=400, height=300)
+    aImageRegistration = MPBProblemImageRegistration(root, row=0, column=1, width=400, height=300, pos=S)
     #aImageRegistration.grid(row=0, column=1)
     #aImageRegistration.pack(side=LEFT)
 

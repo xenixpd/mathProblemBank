@@ -1,5 +1,17 @@
 from tkinter import *
 
+from MPBUITools import *
+
+def loadProblemRegistration():
+	win = Toplevel()
+	win.title('문제 등록(그림)')
+	win.resizable(width=False, height=False)
+	win.grab_set()
+
+	MPBCurriTreeView(win, row=0, column=0)
+	MPBProblemImageRegistration(win, row=0, column=1, width=300, height=300)
+
+
 def doNothing():
 	print("좋아요. 아주 좋아요")
 
@@ -32,11 +44,11 @@ searchProblemMenu.add_command(label="기본 검색", command=doNothing)
 searchProblemMenu.add_command(label="Cut", command=doNothing)
 searchProblemMenu.add_command(label="Paste", command=doNothing)
 
-
 # 주 도구바(툴바)
 mainToolbar = Frame(root, bg="blue")
 
-insertBtn = Button(mainToolbar, text="문제 등록", command=doNothing)
+insertBtn = Button(mainToolbar, text="문제 등록", command=loadProblemRegistration)
+#insertBtn = Button(mainToolbar, text="문제 등록", command=doNothing)
 insertBtn.pack(side=LEFT, padx=2, pady=2)
 
 printBtn = Button(mainToolbar, text="기본 검색", command=doNothing)

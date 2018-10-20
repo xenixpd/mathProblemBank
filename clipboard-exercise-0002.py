@@ -1,3 +1,4 @@
+# 성공
 from tkinter import *
 from PIL import ImageTk, Image, ImageGrab
 

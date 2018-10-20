@@ -7,14 +7,14 @@ DEFAULT_BACKGROUND = '.\\coffee.jpeg'
 
 class App(Frame):
 
-    def __init__(self, master, row=0, column=0, width=0, height=0, pos=S):
+    def __init__(self, master, width=0, height=0, pos=S):
         # 인수로 주어진 width와 height는 전체 크기가 아니라 그림 영역의 크기이다.
         # 인수 pos는 명령 단추가 놓일 곳을 가리킨다. (N, S, E, W)
 
         Frame.__init__(self, master)
         #print(master.winfo_width(), master.winfo_height())
 
-        self.container = ttk.Frame(master, padding=(3,3,12,12))
+        #self.container = ttk.Frame(master, padding=(3,3,12,12))
 
         # 기본 배경 그림
         self.img = Image.open(DEFAULT_BACKGROUND)
@@ -22,7 +22,7 @@ class App(Frame):
         self.isDefaultImageUsed = True
 
         # 라벨(그림)
-        self.lblImage = Label(self.container, image=self.defaultImage, bg='grey')
+        self.lblImage = Label(master, image=self.defaultImage, bg='grey')
         self.lblImage.config(width=width, height=height, relief=SUNKEN)
 
         # 라벨 크기
@@ -32,25 +32,25 @@ class App(Frame):
         
         # 명령 단추
         # 그림 파일 선택
-        self.btnSelectImage = Button(self.container, text='그림 파일 선택', bg='yellow', font=LARGE_FONT, 
+        self.btnSelectImage = Button(master, text='그림 파일 선택', bg='yellow', font=LARGE_FONT, 
                               wraplength=75, command=self.select_image)
         self.btnSelectImage.config(width=10, height=2)
 
         # 클립보드에서 가져오기
-        self.btnPasteFromClipboard = Button(self.container, text='클립보드에서 가져오기', bg='yellow', font=LARGE_FONT,
+        self.btnPasteFromClipboard = Button(master, text='클립보드에서 가져오기', bg='yellow', font=LARGE_FONT,
                                      wraplength=90, command=self.paste_from_clipboard)
         self.btnPasteFromClipboard.config(width=10, height=2)
 
         # 기존 그림 지우기
-        self.btnInitializeImage = Button(self.container, text='초기화', bg='yellow', font=LARGE_FONT,
+        self.btnInitializeImage = Button(master, text='초기화', bg='yellow', font=LARGE_FONT,
                                   command=self.initialize_image)
         self.btnInitializeImage.config(width=10, height=2)
 
         # 안내용 라벨
-        self.lblInfo = Label(self.container)
+        self.lblInfo = Label(master)
         self.lblInfo.config(justify=RIGHT, wraplength=width)
 
-        self.container.grid(row=row, column=column, sticky=NSEW)
+        #self.container.grid(row=row, column=column, sticky=NSEW)
 
         # 프레임에 넣기. 기본은 N(아래쪽에 단추 배치)
         if pos == N:
@@ -80,7 +80,7 @@ class App(Frame):
             self.btnPasteFromClipboard.grid(row=4, column=1, padx=5, pady=5, sticky=NS)    
             self.btnInitializeImage.grid(row=4, column=2, padx=5, pady=5)
 
-            self.lblInfo.grid(row=0, column=0, columnspan=3, padx=2, pady=2, sticky=E)
+            self.lblInfo.grid(row=0, column=0, columnspan=3, padx=2, sticky=E)
 
     def select_image(self):        
         # 파일 선택
@@ -155,10 +155,11 @@ class App(Frame):
 
 if __name__ == '__main__':
     root = Tk()
-    #root.geometry("400x400")
+    root.geometry("640x400")
     #root.rowconfigure(0, weight=1)
     #root.columnconfigure(0, weight=1)
 
-    test = App(root, 0, 0, 400, 300)
+    test = App(root, 400, 300)
+    test.grid(row=0, column=0)
 
     root.mainloop()

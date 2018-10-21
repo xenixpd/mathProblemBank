@@ -1,16 +1,16 @@
 from tkinter import *
-from tkinter import ttk, filedialog
+from tkinter import ttk, filedialog, messagebox
 from PIL import ImageTk, Image, ImageGrab
 import sqlite3
 
-HUGE_FONT = ('맑은 고딕', 14)
+HUGE_FONT = ('맑은 고딕', 14, "bold")
 LARGE_FONT = ('맑은 고딕', 11)
 
 DEFAULT_BACKGROUND = '.\\coffee.jpeg'
 
 class MPBCurriTreeView(Frame):
 
-    def __init__(self, master, row=0, column=0):
+    def __init__(self, master, row=0, column=0, rowspan=1, columnspan=1, sticky=N+W):
         Frame.__init__(self, master)
         
         # 트리에서 선택된 항목의 종류와 ID(기본값)
@@ -56,7 +56,7 @@ class MPBCurriTreeView(Frame):
         #self.lblSelectedCurriType.pack(side=BOTTOM)
         self.lblSelectedCurriID.grid(row=2, column=9, sticky=E, padx=5)
         #self.lblSelectedCurriID.pack(side=LEFT)
-        self.container.grid(row=row, column=column, padx=10, pady=10)
+        self.container.grid(row=row, column=column, rowspan=rowspan, columnspan=columnspan, padx=10, pady=10, stick=sticky)
 
         # Handling Resize
         self.container.rowconfigure(0, weight=1)
@@ -183,7 +183,7 @@ class MPBCurriTreeView(Frame):
 
 class MPBProblemImageRegistration(Frame):
 
-    def __init__(self, master, row=0, column=0, width=0, height=0, pos=N):
+    def __init__(self, master, row=0, column=0, rowspan=1, columnspan=1, width=400, height=300, pos=N, sticky=N+W):
         # 인수로 주어진 width와 height는 전체 크기가 아니라 그림 영역의 크기이다.
         # 인수 pos는 명령 단추가 놓일 곳을 가리킨다. (N, S, E, W)
 
@@ -221,6 +221,11 @@ class MPBProblemImageRegistration(Frame):
                                      wraplength=90, command=self.paste_from_clipboard)
         self.btnPasteFromClipboard.config(width=10, height=2)
 
+        # 원본 그림 보기
+        self.btnSeeOriginal = Button(self.container, text='그림 원본 보기', bg='yellow', 
+                              wraplength=75, command=self.see_original)
+        self.btnSeeOriginal.config(width=10, height=2)
+
         # 기존 그림 지우기
         self.btnInitializeImage = Button(self.container, text='초기화', bg='yellow',
                                   command=self.initialize_image)
@@ -251,62 +256,65 @@ class MPBProblemImageRegistration(Frame):
 
         conn.close()    # Connection 닫기
 
-
         # 프레임에 넣기. 기본은 N(아래쪽에 단추 배치)
         if pos == S:
-            self.lblTitle.grid(row=0, column=0, columnspan=6, sticky=W)
-            self.btnSelectImage.grid(row=1, column=0, padx=5, pady=5)
-            self.btnPasteFromClipboard.grid(row=1, column=2, padx=5, pady=5)    
-            self.btnInitializeImage.grid(row=1, column=4, padx=5, pady=5)
-            self.lblImage.grid(row=2, column=0, rowspan=3, columnspan=6, padx=5, pady=5, sticky=NSEW)
-            self.lblInfo.grid(row=5, column=0, columnspan=6, padx=2, pady=2, sticky=E)
-            self.lblColumnsUsed.grid(row=6, column=0, columnspan=3, padx=2, pady=2, sticky=E)
-            self.cbbColmunsUsed.grid(row=6, column=3, columnspan=3, sticky=W, padx=2, pady=2)
-            self.lblDifficulty.grid(row=7, column=0, columnspan=3, padx=2, pady=2, sticky=E)
-            self.cbbDifficulty.grid(row=7, column=3, columnspan=3, sticky=W, padx=2, pady=2)
+            self.lblTitle.grid(row=0, column=0, columnspan=8, sticky=W)
+            self.btnSelectImage.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
+            self.btnPasteFromClipboard.grid(row=1, column=2, columnspan=2, padx=5, pady=5)
+            self.btnSeeOriginal.grid(row=1, column=4, columnspan=2, padx=5, pady=5)
+            self.btnInitializeImage.grid(row=1, column=6, columnspan=2, padx=5, pady=5)
+            self.lblImage.grid(row=2, column=0, rowspan=4, columnspan=8, padx=5, pady=5, sticky=NSEW)
+            self.lblInfo.grid(row=6, column=0, columnspan=8, padx=2, sticky=E)
+            self.lblColumnsUsed.grid(row=7, column=0, columnspan=4, padx=2, pady=2, sticky=E)
+            self.cbbColmunsUsed.grid(row=7, column=4, columnspan=4, padx=2, pady=2, sticky=EW)
+            self.lblDifficulty.grid(row=8, column=0, columnspan=4, padx=2, pady=2, sticky=E)
+            self.cbbDifficulty.grid(row=8, column=4, columnspan=4, padx=2, pady=2, sticky=EW)
         elif pos == E:
-            self.lblTitle.grid(row=0, column=0, columnspan=6, sticky=W)
-            self.btnSelectImage.grid(row=1, column=0, padx=5, pady=5)
-            self.btnPasteFromClipboard.grid(row=2, column=0, padx=5, pady=5)
-            self.btnInitializeImage.grid(row=3, column=0, padx=5, pady=5)
-            self.lblImage.grid(row=1, column=1, rowspan=3, columnspan=6, padx=5, pady=5, sticky=NSEW)
-            self.lblInfo.grid(row=4, column=1, columnspan=6, padx=2, pady=2, sticky=E)
-            self.lblColumnsUsed.grid(row=5, column=1, columnspan=4, padx=2, pady=2, sticky=E)
-            self.cbbColmunsUsed.grid(row=5, column=5, columnspan=2, sticky=EW, padx=2, pady=2)
-            self.lblDifficulty.grid(row=6, column=1, columnspan=4, padx=2, pady=2, sticky=E)
-            self.cbbDifficulty.grid(row=6, column=5, columnspan=2, sticky=EW, padx=2, pady=2)
+            self.lblTitle.grid(row=0, column=0, columnspan=8, sticky=W)
+            self.btnSelectImage.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
+            self.btnPasteFromClipboard.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
+            self.btnSeeOriginal.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+            self.btnInitializeImage.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
+            self.lblImage.grid(row=1, column=2, rowspan=4, columnspan=6, padx=5, pady=5, sticky=NSEW)
+            self.lblInfo.grid(row=5, column=2, columnspan=6, padx=2, sticky=E)
+            self.lblColumnsUsed.grid(row=6, column=2, columnspan=3, padx=2, pady=2, sticky=E)
+            self.cbbColmunsUsed.grid(row=6, column=5, columnspan=3, sticky=EW, padx=2, pady=2)
+            self.lblDifficulty.grid(row=7, column=2, columnspan=3, padx=2, pady=2, sticky=E)
+            self.cbbDifficulty.grid(row=7, column=5, columnspan=3, sticky=EW, padx=2, pady=2)
         elif pos == W:
-            self.lblTitle.grid(row=0, column=0, columnspan=6, sticky=W)
-            self.lblImage.grid(row=1, column=0, rowspan=3, columnspan=6, padx=5, pady=5)
-            self.btnSelectImage.grid(row=1, column=6, padx=5, pady=5)
-            self.btnPasteFromClipboard.grid(row=2, column=6, padx=5, pady=5)    
-            self.btnInitializeImage.grid(row=3, column=6, padx=5, pady=5)
-            self.lblInfo.grid(row=4, column=0, columnspan=6, padx=2, pady=2, sticky=E)
-            self.lblColumnsUsed.grid(row=5, column=0, columnspan=4, padx=2, pady=2, sticky=E)
-            self.cbbColmunsUsed.grid(row=5, column=4, sticky=EW, padx=2, pady=2)
-            self.lblDifficulty.grid(row=6, column=0, columnspan=4, padx=2, pady=2, sticky=E)
-            self.cbbDifficulty.grid(row=6, column=4, sticky=EW, padx=2, pady=2)
-        else:
-            self.lblTitle.grid(row=0, column=0, columnspan=6, sticky=W)
-            self.lblImage.grid(row=1, column=0, rowspan=3, columnspan=6, padx=5, pady=5, sticky=NSEW)
-            self.btnSelectImage.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
-            self.btnPasteFromClipboard.grid(row=4, column=2, columnspan=2, padx=5, pady=5)    
-            self.btnInitializeImage.grid(row=4, column=4, columnspan=2, padx=5, pady=5)
-            self.lblInfo.grid(row=5, column=0, columnspan=6, padx=2, pady=2, sticky=E)
+            self.lblTitle.grid(row=0, column=0, columnspan=8, sticky=W)
+            self.lblImage.grid(row=1, column=0, rowspan=4, columnspan=6, padx=5, pady=5)
+            self.btnSelectImage.grid(row=1, column=6, columnspan=2, padx=5, pady=5)
+            self.btnPasteFromClipboard.grid(row=2, column=6, columnspan=2, padx=5, pady=5)
+            self.btnSeeOriginal.grid(row=3, column=6, columnspan=2, padx=5, pady=5)
+            self.btnInitializeImage.grid(row=4, column=6, columnspan=2, padx=5, pady=5)
+            self.lblInfo.grid(row=5, column=0, columnspan=6, padx=2, sticky=E)
             self.lblColumnsUsed.grid(row=6, column=0, columnspan=3, padx=2, pady=2, sticky=E)
-            self.cbbColmunsUsed.grid(row=6, column=3, columnspan=3, sticky=W, padx=2, pady=2)
+            self.cbbColmunsUsed.grid(row=6, column=3, columnspan=3, sticky=EW, padx=2, pady=2)
             self.lblDifficulty.grid(row=7, column=0, columnspan=3, padx=2, pady=2, sticky=E)
-            self.cbbDifficulty.grid(row=7, column=3, columnspan=3, sticky=W, padx=2, pady=2)
+            self.cbbDifficulty.grid(row=7, column=3, columnspan=3, sticky=EW, padx=2, pady=2)
+        else:   # N
+            self.lblTitle.grid(row=0, column=0, columnspan=8, sticky=W)
+            self.lblImage.grid(row=1, column=0, rowspan=4, columnspan=8, padx=5, pady=5, sticky=NSEW)
+            self.btnSelectImage.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
+            self.btnPasteFromClipboard.grid(row=5, column=2, columnspan=2, padx=5, pady=5)
+            self.btnSeeOriginal.grid(row=5, column=4, columnspan=2, padx=5, pady=5)
+            self.btnInitializeImage.grid(row=5, column=6, columnspan=2, padx=5, pady=5)
+            self.lblInfo.grid(row=6, column=0, columnspan=8, padx=2, sticky=E)
+            self.lblColumnsUsed.grid(row=7, column=0, columnspan=4, padx=2, pady=2, sticky=E)
+            self.cbbColmunsUsed.grid(row=7, column=4, columnspan=4, padx=2, pady=2, sticky=EW)
+            self.lblDifficulty.grid(row=8, column=0, columnspan=4, padx=2, pady=2, sticky=E)
+            self.cbbDifficulty.grid(row=8, column=4, columnspan=4, padx=2, pady=2, sticky=EW)
 
-        self.container.grid(row=row, column=column, padx=10, pady=10, sticky=N)
+        self.container.grid(row=row, column=column, rowspan=rowspan, columnspan=columnspan, padx=10, pady=10, sticky=sticky)
 
     def select_image(self):        
         # 파일 선택
-        selectedFileName = filedialog.askopenfilename(title='그림 파일 선택')
+        self.selectedFileName = filedialog.askopenfilename(title='그림 파일 선택')
 
         # 선택한 파일이 있을 때만 작업
-        if selectedFileName != '':
-            self.img = Image.open(selectedFileName)
+        if self.selectedFileName != '':
+            self.img = Image.open(self.selectedFileName)
             self.original = ImageTk.PhotoImage(self.img)    # 크기 변형 전의 그림(저장용)
 
             imageWidth = self.img.size[0]
@@ -333,7 +341,7 @@ class MPBProblemImageRegistration(Frame):
             self.lblImage.config(image=self.resized)
             #self.lblImage.config(image=self.original)
             self.isDefaultImageUsed = False
-            self.lblInfo.config(text=selectedFileName)  # 안내용 라벨에 읽어들인 파일 경로 표시
+            self.lblInfo.config(text=self.selectedFileName)  # 안내용 라벨에 읽어들인 파일 경로 표시
 
     def paste_from_clipboard(self):
         self.img = ImageGrab.grabclipboard()
@@ -366,10 +374,377 @@ class MPBProblemImageRegistration(Frame):
             self.isDefaultImageUsed = False
             self.lblInfo.config(text='<클립보드>')  # 안내용 라벨
 
+    def see_original(self):
+        try:
+            aWin = Toplevel()
+            aWin.title(self.selectedFileName)
+            aWin.grab_set()
+
+            aLabel = Label(aWin)
+            aLabel.config(image=self.original)
+            aLabel.pack()
+        except:
+            pass
+
     def initialize_image(self):
         self.lblImage.config(image=self.defaultImage)
         self.isDefaultImageUsed = True
         self.lblInfo.config(text='')    # 안내용 라벨
+        self.original = None
+
+
+
+class MPBAnswerRegistration(Frame):
+
+    def __init__(self, master, row=0, column=0, rowspan=1, columnspan=1, width=400, height=50, sticky=N+W):
+        Frame.__init__(self, master)
+
+        self.container = Frame(master)
+
+        # 제목
+        self.lblTitle = Label(self.container, text='<답 관련 정보>', font=HUGE_FONT, fg='blue')
+
+        # 답 형식
+        self.lblAnsType = Label(self.container, text='답 형식: ')
+
+        # 답 형식 선택을 위한 라디오 버튼
+        self.ansTypeChoice = IntVar()
+
+        self.radAnsTypeObj = Radiobutton(self.container, text='객관식', variable=self.ansTypeChoice, value=1, command=self.callback)
+        self.radAnsTypeObj.select()
+        self.radAnsTypeSubj = Radiobutton(self.container, text='주관식', variable=self.ansTypeChoice, value=2, command=self.callback)
+
+        # 객관식 답
+        self.lblObjAns = Label(self.container, text='객관식 답: ')
+        self.cbbObjAns = ttk.Combobox(self.container)
+
+        # 주관식 답
+        self.lblSubjAns = Label(self.container, text='주관식 답: ')
+        self.lblSubjAnsInfo = Label(self.container, text='(직접 입력)')
+
+        self.enteredAns = StringVar()
+        self.txtSubjAns = Entry(self.container, textvariable=self.enteredAns)
+        #self.enteredAns.set("<입력하세요.>")
+
+        conn = sqlite3.connect("mathProblemDB.db")  # SQLite DB에 연결
+        cur = conn.cursor() # Connection으로부터 Cursor 생성
+        cur.execute("SELECT ansNo FROM tblObjAns ORDER BY ansNo")   # SQL 실행
+        rows = cur.fetchall()   # 데이타 fetch
+        self.cbbObjAns['value'] =([row for row in rows])   # 가져온 데이타를 콤보 상자에 담기
+        conn.close()    # Connection 닫기
+
+        # 명령 단추
+        self.btnSelectImage = Button(self.container, text='그림 파일 선택', bg='yellow', wraplength=75, command=self.select_image)   # 그림 파일 선택
+        self.btnSelectImage.config(width=10, height=2)
+
+        self.btnPasteFromClipboard = Button(self.container, text='클립보드에서 가져오기', bg='yellow', wraplength=90, command=self.paste_from_clipboard)    # 클립보드에서 가져오기
+        self.btnPasteFromClipboard.config(width=10, height=2)
+
+        self.btnSeeOriginal = Button(self.container, text='그림 원본 보기', bg='yellow', wraplength=75, command=self.see_original)   # 원본 그림 보기
+        self.btnSeeOriginal.config(width=10, height=2)
+
+        self.btnInitializeImage = Button(self.container, text='초기화', bg='yellow', command=self.initialize_image) # 기존 그림 지우기
+        self.btnInitializeImage.config(width=10, height=2)
+
+        # 기본 배경 그림
+        self.img = Image.open(DEFAULT_BACKGROUND)
+        self.defaultImage = ImageTk.PhotoImage(self.img)
+        self.isDefaultImageUsed = True
+
+        # 라벨(그림)
+        self.lblImage = Label(self.container, image=self.defaultImage, bg='grey')
+        self.lblImage.config(width=width, height=height, relief=SUNKEN)
+
+        # 라벨 크기
+        self.labelWidth = width
+        self.labelHeight = height
+        self.labelRatio = height/width
+
+        # 안내용 라벨
+        self.lblInfo = Label(self.container)
+        self.lblInfo.config(justify=RIGHT, wraplength=width)
+
+        # 도움말
+        self.lblHelp = Label(self.container, text="직접 입력한 답과 그림이 동시에 있으면 직접 입력한 답을 사용합니다.", fg='green')
+
+        # 그릇에 담기
+        self.lblTitle.grid(row=0, column=0, columnspan=14, padx=2, pady=2, sticky=W)
+        self.lblAnsType.grid(row=1, column=0, columnspan=2, padx=2, pady=2, sticky=E)
+        self.radAnsTypeObj.grid(row=1, column=2, columnspan=2, padx=2, pady=2, sticky=W)
+        self.radAnsTypeSubj.grid(row=1, column=4, columnspan=2, padx=2, pady=2, sticky=W)
+        self.lblObjAns.grid(row=2, column=0, columnspan=2, padx=2, pady=2, sticky=E)
+        self.cbbObjAns.grid(row=2, column=2, columnspan=4, padx=2, pady=2)
+        self.lblSubjAns.grid(row=3, column=0, columnspan=2, padx=2, pady=2, sticky=E)
+        self.lblSubjAnsInfo.grid(row=3, column=2, columnspan=2, padx=2, pady=2, sticky=W)
+        self.txtSubjAns.grid(row=3, column=4, columnspan=10, padx=2, pady=2, stick=EW)
+        self.btnSelectImage.grid(row=4, column=2, columnspan=3, padx=5, pady=5)
+        self.btnPasteFromClipboard.grid(row=4, column=5, columnspan=3, padx=5, pady=5)
+        self.btnSeeOriginal.grid(row=4, column=8, columnspan=3, padx=5, pady=5)
+        self.btnInitializeImage.grid(row=4, column=11, columnspan=3, padx=5, pady=5)
+        self.lblImage.grid(row=5, column=2, columnspan=12, padx=5, pady=5, sticky=NSEW)
+        self.lblInfo.grid(row=6, column=2, columnspan=12, padx=2, sticky=E)
+        self.lblHelp.grid(row=7, column=2, columnspan=12, padx=2, sticky=EW)
+
+        self.container.grid(row=row, column=column, rowspan=rowspan, columnspan=columnspan, padx=10, pady=10, sticky=sticky)
+
+    def select_image(self):        
+        # 파일 선택
+        self.selectedFileName = filedialog.askopenfilename(title='그림 파일 선택')
+
+        # 선택한 파일이 있을 때만 작업
+        if self.selectedFileName != '':
+            self.img = Image.open(self.selectedFileName)
+            self.original = ImageTk.PhotoImage(self.img)    # 크기 변형 전의 그림(저장용)
+
+            imageWidth = self.img.size[0]
+            imageHeight = self.img.size[1]
+            imageRatio = imageHeight/imageWidth
+
+            if imageRatio < self.labelRatio:
+                if imageWidth > self.labelWidth:
+                    newWidth = self.labelWidth
+                    newHeight = int(self.labelWidth * imageRatio)
+                else:   # imageWidth <= self.labelWidth
+                    newWidth = imageWidth
+                    newHeight = imageHeight
+            else:   # imageRatio >= self.labelRatio
+                if imageHeight > self.labelHeight:
+                    newHeight = self.labelHeight
+                    newWidth = int(self.labelHeight / imageRatio)
+                else:   # imageHeight <= self.labelHeight
+                    newHeight = imageHeight
+                    newWidth = imageWidth
+
+            self.img = self.img.resize((newWidth, newHeight), Image.ANTIALIAS)
+            self.resized = ImageTk.PhotoImage(self.img) # 크기 변형 후의 그림(보여주기 용)
+            self.lblImage.config(image=self.resized)
+            #self.lblImage.config(image=self.original)
+            self.isDefaultImageUsed = False
+            self.lblInfo.config(text=self.selectedFileName)  # 안내용 라벨에 읽어들인 파일 경로 표시
+
+    def paste_from_clipboard(self):
+        self.img = ImageGrab.grabclipboard()
+
+        if self.img != None:
+            self.original = ImageTk.PhotoImage(self.img)    # 크기 변형 전의 그림(저장용): 이하 부분은 위와 동일하므로 함수로 만들 것을 고려할 것
+
+            imageWidth = self.img.size[0]
+            imageHeight = self.img.size[1]
+            imageRatio = imageHeight/imageWidth
+
+            if imageRatio < self.labelRatio:
+                if imageWidth > self.labelWidth:
+                    newWidth = self.labelWidth
+                    newHeight = int(self.labelWidth * imageRatio)
+                else:   # imageWidth <= self.labelWidth
+                    newWidth = imageWidth
+                    newHeight = imageHeight
+            else:   # imageRatio >= self.labelRatio
+                if imageHeight > self.labelHeight:
+                    newHeight = self.labelHeight
+                    newWidth = int(self.labelHeight / imageRatio)
+                else:   # imageHeight <= self.labelHeight
+                    newHeight = imageHeight
+                    newWidth = imageWidth
+
+            self.img = self.img.resize((newWidth, newHeight), Image.ANTIALIAS)
+            self.resized = ImageTk.PhotoImage(self.img) # 크기 변형 후의 그림(보여주기 용)
+            self.lblImage.config(image=self.resized)
+            self.isDefaultImageUsed = False
+            self.lblInfo.config(text='<클립보드>')  # 안내용 라벨
+
+    def see_original(self):
+        try:
+            aWin = Toplevel()
+            aWin.title(self.selectedFileName)
+            aWin.grab_set()
+
+            aLabel = Label(aWin)
+            aLabel.config(image=self.original)
+            aLabel.pack()
+        except:
+            pass
+
+    def initialize_image(self):
+        self.lblImage.config(image=self.defaultImage)
+        self.isDefaultImageUsed = True
+        self.lblInfo.config(text='')    # 안내용 라벨
+        self.original = None
+
+    def callback(self):
+        pass
+        #print(self.ansTypeChoice.get()) # 라디오 버튼에서 선택한 값을 출력(1: 객관식, 2: 주관식)
+
+
+
+class MPBSolutionRegistration(Frame):
+
+    def __init__(self, master, row=0, column=0, rowspan=1, columnspan=1, width=400, height=150, pos=N, sticky=N+W):
+        Frame.__init__(self, master)
+
+        self.container = Frame(master)
+
+        # 제목
+        self.lblTitle = Label(self.container, text='<풀이 관련 정보(선택)>', font=HUGE_FONT, fg='blue')
+
+        # 명령 단추
+        self.btnSelectImage = Button(self.container, text='그림 파일 선택', bg='yellow', wraplength=75, command=self.select_image)   # 그림 파일 선택
+        self.btnSelectImage.config(width=10, height=2)
+
+        self.btnPasteFromClipboard = Button(self.container, text='클립보드에서 가져오기', bg='yellow', wraplength=90, command=self.paste_from_clipboard)    # 클립보드에서 가져오기
+        self.btnPasteFromClipboard.config(width=10, height=2)
+
+        self.btnSeeOriginal = Button(self.container, text='그림 원본 보기', bg='yellow', wraplength=75, command=self.see_original)   # 원본 그림 보기
+        self.btnSeeOriginal.config(width=10, height=2)
+
+        self.btnInitializeImage = Button(self.container, text='초기화', bg='yellow', command=self.initialize_image) # 기존 그림 지우기
+        self.btnInitializeImage.config(width=10, height=2)
+
+        # 기본 배경 그림
+        self.img = Image.open(DEFAULT_BACKGROUND)
+        self.defaultImage = ImageTk.PhotoImage(self.img)
+        self.isDefaultImageUsed = True
+
+        # 라벨(그림)
+        self.lblImage = Label(self.container, image=self.defaultImage, bg='grey')
+        self.lblImage.config(width=width, height=height, relief=SUNKEN)
+
+        # 라벨 크기
+        self.labelWidth = width
+        self.labelHeight = height
+        self.labelRatio = height/width
+
+        # 안내용 라벨
+        self.lblInfo = Label(self.container)
+        self.lblInfo.config(justify=RIGHT, wraplength=width)
+
+        # 프레임에 넣기. 기본은 N(아래쪽에 단추 배치)
+        if pos == S:
+            self.lblTitle.grid(row=0, column=0, columnspan=8, sticky=W)
+            self.btnSelectImage.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
+            self.btnPasteFromClipboard.grid(row=1, column=2, columnspan=2, padx=5, pady=5)
+            self.btnSeeOriginal.grid(row=1, column=4, columnspan=2, padx=5, pady=5)
+            self.btnInitializeImage.grid(row=1, column=6, columnspan=2, padx=5, pady=5)
+            self.lblImage.grid(row=2, column=0, rowspan=4, columnspan=8, padx=5, pady=5, sticky=NSEW)
+            self.lblInfo.grid(row=6, column=0, columnspan=8, padx=2, sticky=E)
+        elif pos == E:
+            self.lblTitle.grid(row=0, column=0, columnspan=8, sticky=W)
+            self.btnSelectImage.grid(row=1, column=0, columnspan=2, padx=5, pady=5)
+            self.btnPasteFromClipboard.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
+            self.btnSeeOriginal.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+            self.btnInitializeImage.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
+            self.lblImage.grid(row=1, column=2, rowspan=4, columnspan=6, padx=5, pady=5, sticky=NSEW)
+            self.lblInfo.grid(row=5, column=2, columnspan=6, padx=2, sticky=E)
+        elif pos == W:
+            self.lblTitle.grid(row=0, column=0, columnspan=8, sticky=W)
+            self.lblImage.grid(row=1, column=0, rowspan=4, columnspan=6, padx=5, pady=5)
+            self.btnSelectImage.grid(row=1, column=6, columnspan=2, padx=5, pady=5)
+            self.btnPasteFromClipboard.grid(row=2, column=6, columnspan=2, padx=5, pady=5)
+            self.btnSeeOriginal.grid(row=3, column=6, columnspan=2, padx=5, pady=5)
+            self.btnInitializeImage.grid(row=4, column=6, columnspan=2, padx=5, pady=5)
+            self.lblInfo.grid(row=5, column=0, columnspan=6, padx=2, sticky=E)
+        else:   # N
+            self.lblTitle.grid(row=0, column=0, columnspan=8, sticky=W)
+            self.lblImage.grid(row=1, column=0, rowspan=4, columnspan=8, padx=5, pady=5, sticky=NSEW)
+            self.btnSelectImage.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
+            self.btnPasteFromClipboard.grid(row=5, column=2, columnspan=2, padx=5, pady=5)
+            self.btnSeeOriginal.grid(row=5, column=4, columnspan=2, padx=5, pady=5)
+            self.btnInitializeImage.grid(row=5, column=6, columnspan=2, padx=5, pady=5)
+            self.lblInfo.grid(row=6, column=0, columnspan=8, padx=2, sticky=E)
+
+        self.container.grid(row=row, column=column, rowspan=rowspan, columnspan=columnspan, padx=10, pady=10, sticky=sticky)
+
+    def select_image(self):        
+        # 파일 선택
+        self.selectedFileName = filedialog.askopenfilename(title='그림 파일 선택')
+
+        # 선택한 파일이 있을 때만 작업
+        if self.selectedFileName != '':
+            self.img = Image.open(self.selectedFileName)
+            self.original = ImageTk.PhotoImage(self.img)    # 크기 변형 전의 그림(저장용)
+
+            imageWidth = self.img.size[0]
+            imageHeight = self.img.size[1]
+            imageRatio = imageHeight/imageWidth
+
+            if imageRatio < self.labelRatio:
+                if imageWidth > self.labelWidth:
+                    newWidth = self.labelWidth
+                    newHeight = int(self.labelWidth * imageRatio)
+                else:   # imageWidth <= self.labelWidth
+                    newWidth = imageWidth
+                    newHeight = imageHeight
+            else:   # imageRatio >= self.labelRatio
+                if imageHeight > self.labelHeight:
+                    newHeight = self.labelHeight
+                    newWidth = int(self.labelHeight / imageRatio)
+                else:   # imageHeight <= self.labelHeight
+                    newHeight = imageHeight
+                    newWidth = imageWidth
+
+            self.img = self.img.resize((newWidth, newHeight), Image.ANTIALIAS)
+            self.resized = ImageTk.PhotoImage(self.img) # 크기 변형 후의 그림(보여주기 용)
+            self.lblImage.config(image=self.resized)
+            #self.lblImage.config(image=self.original)
+            self.isDefaultImageUsed = False
+            self.lblInfo.config(text=self.selectedFileName)  # 안내용 라벨에 읽어들인 파일 경로 표시
+
+    def paste_from_clipboard(self):
+        self.img = ImageGrab.grabclipboard()
+
+        if self.img != None:
+            self.original = ImageTk.PhotoImage(self.img)    # 크기 변형 전의 그림(저장용): 이하 부분은 위와 동일하므로 함수로 만들 것을 고려할 것
+
+            imageWidth = self.img.size[0]
+            imageHeight = self.img.size[1]
+            imageRatio = imageHeight/imageWidth
+
+            if imageRatio < self.labelRatio:
+                if imageWidth > self.labelWidth:
+                    newWidth = self.labelWidth
+                    newHeight = int(self.labelWidth * imageRatio)
+                else:   # imageWidth <= self.labelWidth
+                    newWidth = imageWidth
+                    newHeight = imageHeight
+            else:   # imageRatio >= self.labelRatio
+                if imageHeight > self.labelHeight:
+                    newHeight = self.labelHeight
+                    newWidth = int(self.labelHeight / imageRatio)
+                else:   # imageHeight <= self.labelHeight
+                    newHeight = imageHeight
+                    newWidth = imageWidth
+
+            self.img = self.img.resize((newWidth, newHeight), Image.ANTIALIAS)
+            self.resized = ImageTk.PhotoImage(self.img) # 크기 변형 후의 그림(보여주기 용)
+            self.lblImage.config(image=self.resized)
+            self.isDefaultImageUsed = False
+            self.lblInfo.config(text='<클립보드>')  # 안내용 라벨
+
+    def see_original(self):
+        try:
+            aWin = Toplevel()
+            aWin.title(self.selectedFileName)
+            aWin.grab_set()
+
+            aLabel = Label(aWin)
+            aLabel.config(image=self.original)
+            aLabel.pack()
+        except:
+            pass
+
+    def initialize_image(self):
+        self.lblImage.config(image=self.defaultImage)
+        self.isDefaultImageUsed = True
+        self.lblInfo.config(text='')    # 안내용 라벨
+        self.original = None
+
+
+
+def register_image_problem(ctrlProblemType):
+    if ctrlProblemType.getSelectedProblemTypeID() == 0: # 문제 유형 ID, 문제 유형이 아니거나(즉, 책, 부, 장, 절) 선택한 것이 없으면 0을 반환한다.
+        messagebox.showerror("문제 유형 없음", "문제 유형을 선택하세요.")
+    else:
+        print(ctrlProblemType.getSelectedProblemTypeID())
 
 if __name__ == '__main__':
     root=Tk()
@@ -378,18 +753,30 @@ if __name__ == '__main__':
     # 이 명령으로 인해 프레임 안의 위젯의 크기가 프레임의 크기에 맞추어진다. 프레임의 크기가 클 경우에만 적용된다.
     root.rowconfigure(0, weight=1)
     root.columnconfigure(0, weight=1)
-    root.resizable(width=False, height=False)
+    #root.resizable(width=False, height=False)
+    root.resizable(width=False, height=True)
     
     #for i in range(1, 10):
     #    root.columnconfigure(i, weight=1)
 
-    aTree = MPBCurriTreeView(root, row=0, column=0)
+    aTree = MPBCurriTreeView(root, row=0, column=0, rowspan=30, columnspan=30)
     #aTree.config(width=640, height=480)
     #aTree.grid(row=0, column=0)    # 안 됨. 클래스 안에서 써야함.
     #aTree.pack(side=LEFT)  # 안 됨. 클래스 안에서 써야함.
 
-    aImageRegistration = MPBProblemImageRegistration(root, row=0, column=1, width=400, height=300, pos=S)
+    aImageRegistration = MPBProblemImageRegistration(root, row=0, column=30, rowspan=20, columnspan=20, width=400, height=300)
     #aImageRegistration.grid(row=0, column=1)
     #aImageRegistration.pack(side=LEFT)
+
+    aAns = MPBAnswerRegistration(root, row=30, column=0, width=400, height=50)
+    aSol = MPBSolutionRegistration(root, row=30, column=30, width=400, height=175)
+
+    frmOkCancel = Frame(root)   # 확인/취소 버튼을 위한 프레임
+    btnOk = Button(frmOkCancel, text='확인', fg='white', bg='blue', font=HUGE_FONT, command=lambda: register_image_problem(aTree))
+    #btnOk.tag_configure("WHITE")
+    btnCancel = Button(frmOkCancel, text='취소', fg='white', bg='blue', font=HUGE_FONT, command=lambda: root.destroy())
+    btnOk.grid(row=0, column=0, padx=5, pady=5)
+    btnCancel.grid(row=0, column=1, padx=5, pady=5)
+    frmOkCancel.grid(row=49, column=0, columnspan=50)
 
     root.mainloop()

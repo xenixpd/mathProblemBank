@@ -2,11 +2,11 @@ from tkinter import *
 
 from MPBUITools import *
 
-def register_image_problem(ctrlProblemType):
-    if ctrlProblemType.getSelectedProblemTypeID() == 0: # 문제 유형 ID, 문제 유형이 아니거나(즉, 책, 부, 장, 절) 선택한 것이 없으면 0을 반환한다.
+def register_problem_image(tree, problem, ans, sol):
+    if tree.getSelectedProblemTypeID() == 0:	# 문제 유형 ID, 문제 유형이 아니거나(즉, 책, 부, 장, 절) 선택한 것이 없으면 0을 반환한다.
         messagebox.showerror("문제 유형 없음", "문제 유형을 선택하세요.")
     else:
-        print(ctrlProblemType.getSelectedProblemTypeID())
+        print(tree.getSelectedProblemTypeID())
 
 def loadProblemRegistration():
 	win = Toplevel()
@@ -14,18 +14,30 @@ def loadProblemRegistration():
 	win.resizable(width=False, height=False)
 	win.grab_set()
 
-	aTree = MPBCurriTreeView(win, row=0, column=0, rowspan=30, columnspan=30)	# 교과 선택 용
-	aImageRegistration = MPBProblemImageRegistration(win, row=0, column=30, rowspan=20, columnspan=20, width=400, height=300)	# 문제 등록
-	aAns = MPBAnswerRegistration(win, row=30, column=0, width=400, height=50)	# 답 등록
-	aSol = MPBSolutionRegistration(win, row=30, column=30, width=400, height=175)	# 풀이 등록
+	container = Frame(win)
 	
-	frmOkCancel = Frame(win)   # 확인/취소 버튼을 위한 프레임
-	btnOk = Button(frmOkCancel, text='확인', fg='white', bg='blue', font=HUGE_FONT, command=lambda: register_image_problem(aTree))
-	btnCancel = Button(frmOkCancel, text='취소', fg='white', bg='blue', font=HUGE_FONT, command=lambda: root.destroy())
+	aTree = MPBCurriTreeView(container)	# 문제 유형
+	aTree.grid(row=0, column=0, rowspan=30, columnspan=30, padx=10, pady=10)
+	
+	aProblem = MPBProblemImageRegistration(container, width=400, height=300, pos=N)	# 문제 등록
+	aProblem.grid(row=0, column=30, rowspan=30, columnspan=20, padx=10, pady=10)
+	
+	anAns = MPBAnswerRegistration(container, width=400, height=50)	# 답 등록
+	anAns.grid(row=30, column=0, rowspan=20, columnspan=30, sticky=N+W, padx=10, pady=10)
+	
+	aSol = MPBSolutionRegistration(container, width=400, height=175)	# 풀이 등록
+	aSol.grid(row=30, column=30, rowspan=20, columnspan=20, sticky=N+W, padx=10, pady=10)
+	
+	frmOkCancel = Frame(container)   # 확인/취소 버튼을 위한 프레임
+	
+	btnOk = Button(frmOkCancel, text='확인', fg='white', bg='blue', font=HUGE_FONT, command=lambda: register_problem_image(aTree, aProblem, anAns, aSol))
+	btnCancel = Button(frmOkCancel, text='취소', fg='white', bg='blue', font=HUGE_FONT, command=lambda: win.destroy())
 	btnOk.grid(row=0, column=0, padx=5, pady=5)
 	btnCancel.grid(row=0, column=1, padx=5, pady=5)
-	frmOkCancel.grid(row=49, column=0, columnspan=50)
+	
+	frmOkCancel.grid(row=50, column=0, columnspan=50, padx=10, pady=10)
 
+	container.grid()
 
 def doNothing():
 	print("좋아요. 아주 좋아요")
@@ -64,16 +76,16 @@ mainToolbar = Frame(root, bg="blue")
 
 insertBtn = Button(mainToolbar, text="문제 등록", command=loadProblemRegistration)
 #insertBtn = Button(mainToolbar, text="문제 등록", command=doNothing)
-insertBtn.pack(side=LEFT, padx=2, pady=2)
+insertBtn.grid(row=1, column=0, padx=2, pady=2)
 
 printBtn = Button(mainToolbar, text="기본 검색", command=doNothing)
-printBtn.pack(side=LEFT, padx=2, pady=2)
+printBtn.grid(row=1, column=1, padx=2, pady=2)
 
-mainToolbar.pack(side=TOP, fill=X)
+mainToolbar.grid(row=0, column=0, columnspan=50, sticky=EW)
 
 # 주 상태바
 mainStatus = Label(root, text="Preparing to do nothing...", bd=1, relief=SUNKEN, anchor=W)
-mainStatus.pack(side=BOTTOM, fill=X)
+mainStatus.grid(row=50, column=0, columnspan=50, sticky=EW)
 
 # tkinter 실행
 root.mainloop()

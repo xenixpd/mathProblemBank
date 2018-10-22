@@ -8,17 +8,17 @@ DOWNWARD_ICON = '.\\downward32.gif'
 
 class MPBAuxProblemTypeRegistration(Frame):
 
-    def __init__(self, master, *args, **kargs):
-        Frame.__init__(self, master, *args, **kargs)
+    def __init__(self, master, *args, **kwargs):
+        Frame.__init__(self, *args, **kwargs)
 
         # 그릇 만들기
-        self.container = Frame(master)
+        container = Frame(self)
 
         # 교육 과정 선택 트리
-        self.trvCurri = MPBCurriTreeView(self.container, row=0, column=0)
+        #self.trvCurri = MPBCurriTreeView(self.container, row=0, column=0)
 
         # 추가/제거 단추를 담는 프레임
-        self.frmAddRemove = Frame(self.container)
+        self.frmAddRemove = Frame(container)
 
         self.img = Image.open(UPWARD_ICON)   # 추가/제거 단추를 위한 그림 읽기
         self.upwardImage = ImageTk.PhotoImage(self.img)
@@ -31,15 +31,15 @@ class MPBAuxProblemTypeRegistration(Frame):
         self.btnRemove.grid(row=0, column=1, padx=5, pady=5, sticky=W)
 
         # 그릇에 담기
-        self.trvCurri.grid(row=0, column=0, columnspan=50, padx=5, pady=5)
+        #self.trvCurri.grid(row=0, column=0, columnspan=50, padx=5, pady=5)
         self.frmAddRemove.grid(row=1, column=0, columnspan=50)
 
-        self.container.grid()
+        container.grid()
 
 if __name__ == '__main__':
     root = Tk()
 
     aAux = MPBAuxProblemTypeRegistration(root)
-    #aAux.grid(row=0, column=0)
+    aAux.grid(row=0, column=0)
 
     root.mainloop()

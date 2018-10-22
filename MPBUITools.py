@@ -158,11 +158,6 @@ class MPBProblemImageRegistration(tk.Frame):
         # 라벨(그림)
         self.lblImage = tk.Label(self, image=self.defaultImage, bg='grey')
         self.lblImage.config(width=width, height=height, relief=tk.SUNKEN)
-
-        # 라벨 크기
-        #self.labelWidth = width
-        #self.labelHeight = height
-        #self.labelRatio = height/width
         
         # 명령 단추
         # 그림 파일 선택
@@ -187,7 +182,7 @@ class MPBProblemImageRegistration(tk.Frame):
 
         # 편집에 사용된 단 수
         lblColumnsUsed = tk.Label(self, text='편집 시 사용할 단의 개수: ')
-        self.cbbColmunsUsed = ttk.Combobox(self)   # 콤보 상자
+        self.cbbColumnsUsed = ttk.Combobox(self)   # 콤보 상자
 
         # 예상 난이도
         lblDifficulty = tk.Label(self, text='예상 난이도: ')
@@ -198,7 +193,7 @@ class MPBProblemImageRegistration(tk.Frame):
 
         cur.execute("SELECT columns FROM tblColumnsUsed ORDER BY columns")  # SQL 실행
         rows = cur.fetchall()   # 데이타 fetch
-        self.cbbColmunsUsed['value'] =([row for row in rows])   # 가져온 데이타를 콤보 상자에 담기
+        self.cbbColumnsUsed['value'] =([row for row in rows])   # 가져온 데이타를 콤보 상자에 담기
         
         cur.execute("SELECT difficulty FROM tblDifficulty ORDER BY difficulty")  # SQL 실행
         rows = cur.fetchall()   # 데이타 fetch
@@ -216,7 +211,7 @@ class MPBProblemImageRegistration(tk.Frame):
             self.lblImage.grid(row=2, column=0, rowspan=4, columnspan=8, padx=5, pady=5, sticky=tk.NSEW)
             self.lblInfo.grid(row=6, column=0, columnspan=8, padx=2, sticky=tk.E)
             lblColumnsUsed.grid(row=7, column=0, columnspan=4, padx=2, pady=2, sticky=tk.E)
-            self.cbbColmunsUsed.grid(row=7, column=4, columnspan=4, padx=2, pady=2, sticky=tk.EW)
+            self.cbbColumnsUsed.grid(row=7, column=4, columnspan=4, padx=2, pady=2, sticky=tk.EW)
             lblDifficulty.grid(row=8, column=0, columnspan=4, padx=2, pady=2, sticky=tk.E)
             self.cbbDifficulty.grid(row=8, column=4, columnspan=4, padx=2, pady=2, sticky=tk.EW)
         elif pos == tk.E:
@@ -228,7 +223,7 @@ class MPBProblemImageRegistration(tk.Frame):
             self.lblImage.grid(row=1, column=2, rowspan=4, columnspan=6, padx=5, pady=5, sticky=tk.NSEW)
             self.lblInfo.grid(row=5, column=2, columnspan=6, padx=2, sticky=tk.E)
             lblColumnsUsed.grid(row=6, column=2, columnspan=3, padx=2, pady=2, sticky=tk.E)
-            self.cbbColmunsUsed.grid(row=6, column=5, columnspan=3, padx=2, pady=2, sticky=tk.EW)
+            self.cbbColumnsUsed.grid(row=6, column=5, columnspan=3, padx=2, pady=2, sticky=tk.EW)
             lblDifficulty.grid(row=7, column=2, columnspan=3, padx=2, pady=2, sticky=tk.E)
             self.cbbDifficulty.grid(row=7, column=5, columnspan=3, padx=2, pady=2, sticky=tk.EW)
         elif pos == tk.W:
@@ -240,7 +235,7 @@ class MPBProblemImageRegistration(tk.Frame):
             btnInitializeImage.grid(row=4, column=6, columnspan=2, padx=5, pady=5)
             self.lblInfo.grid(row=5, column=0, columnspan=6, padx=2, sticky=tk.E)
             lblColumnsUsed.grid(row=6, column=0, columnspan=3, padx=2, pady=2, sticky=tk.E)
-            self.cbbColmunsUsed.grid(row=6, column=3, columnspan=3, padx=2, pady=2, sticky=tk.EW)
+            self.cbbColumnsUsed.grid(row=6, column=3, columnspan=3, padx=2, pady=2, sticky=tk.EW)
             lblDifficulty.grid(row=7, column=0, columnspan=3, padx=2, pady=2, sticky=tk.E)
             self.cbbDifficulty.grid(row=7, column=3, columnspan=3, padx=2, pady=2, sticky=tk.EW)
         else:   # tk.N
@@ -252,7 +247,7 @@ class MPBProblemImageRegistration(tk.Frame):
             btnInitializeImage.grid(row=5, column=6, columnspan=2, padx=5, pady=5)
             self.lblInfo.grid(row=6, column=0, columnspan=8, padx=2, sticky=tk.E)
             lblColumnsUsed.grid(row=7, column=0, columnspan=4, padx=2, pady=2, sticky=tk.EW)
-            self.cbbColmunsUsed.grid(row=7, column=4, columnspan=4, padx=2, pady=2, sticky=tk.EW)
+            self.cbbColumnsUsed.grid(row=7, column=4, columnspan=4, padx=2, pady=2, sticky=tk.EW)
             lblDifficulty.grid(row=8, column=0, columnspan=4, padx=2, pady=2, sticky=tk.EW)
             self.cbbDifficulty.grid(row=8, column=4, columnspan=4, padx=2, pady=2, sticky=tk.EW)
 
@@ -288,7 +283,6 @@ class MPBProblemImageRegistration(tk.Frame):
             self.img = self.img.resize((newWidth, newHeight), Image.ANTIALIAS)
             self.resized = ImageTk.PhotoImage(self.img) # 크기 변형 후의 그림(보여주기 용)
             self.lblImage.config(image=self.resized)
-            #self.lblImage.config(image=self.original)
             self.isDefaultImageUsed = False
             self.lblInfo.config(text=self.selectedFileName)  # 안내용 라벨에 읽어들인 파일 경로 표시
 
@@ -342,6 +336,9 @@ class MPBProblemImageRegistration(tk.Frame):
         self.isDefaultImageUsed = True
         self.lblInfo.config(text='')    # 안내용 라벨
         self.original = None
+
+    #def cbbColumnsUsed_selected(self, event):
+    #    print(self.cbbColmunsUsed.get())
 
 
 
@@ -683,6 +680,48 @@ def register_image_problem(ctrlProblemType):
     else:
         print(ctrlProblemType.getSelectedProblemTypeID())
 
+def temp_register_image_problem(tree, prob, ans, sol):
+    isProblemTypeSelected = False
+    isProblemImageAvailable = False
+    isProblemColumnsUsedOk = False
+    isProblemDiffOk = False
+    isAnsTypeOk = False
+    isAnsObjAvailable = False
+    isAnsSubjTextAvailable = False
+    isAnsSubjImageAvailable = False
+    isSolImageAvailable = False
+
+    errStr = ''
+
+    # 문제 유형 ID
+    problemTypeID = tree.getSelectedProblemTypeID()
+
+    if problemTypeID == 0: # 문제 유형 ID, 문제 유형이 아니거나(즉, 책, 부, 장, 절) 선택한 것이 없으면 0을 반환한다.
+        #messagebox.showerror("문제 유형 없음", "문제 유형을 선택하세요.")
+        errStr = errStr + "문제 유형을 선택하세요."
+    else:
+        isProblemTypeSelected = True
+
+    # 문제 그림
+    if prob.isDefaultImageUsed:
+        errStr = errStr + "\n문제 그림을 선택하세요."
+    else:
+        isProblemImageAvailable = True
+        print(prob.img)
+
+    # 문제 단 수
+    columnsUsed = prob.cbbColumnsUsed.get()
+    print(columnsUsed)
+
+    if columnsUsed == '':
+        errStr = errStr + "\n편집 시 사용할 단의 개수를 선택하세요."
+    else:
+        isProblemColumnsUsedOk = True
+    
+
+    messagebox.showerror("오류", errStr)
+
+
 if __name__ == '__main__':
     root=tk.Tk()
     #root.geometry("640x480")
@@ -697,22 +736,25 @@ if __name__ == '__main__':
     aTree = MPBCurriTreeView(root)
     aTree.grid(row=0, column=0, rowspan=30, columnspan=30, padx=10, pady=10)
 
-    anImageRegistration = MPBProblemImageRegistration(root, width=400, height=300, pos=tk.N)
-    anImageRegistration.grid(row=0, column=30, rowspan=30, columnspan=20, padx=10, pady=10)
+    aProblem = MPBProblemImageRegistration(root, width=400, height=300, pos=tk.N)
+    aProblem.grid(row=0, column=30, rowspan=30, columnspan=20, padx=10, pady=10)
 
-    aAns = MPBAnswerRegistration(root, width=400, height=50)
-    aAns.grid(row=30, column=0, rowspan=20, columnspan=30, sticky=tk.N+tk.W, padx=10, pady=10)
+    anAns = MPBAnswerRegistration(root, width=400, height=50)
+    anAns.grid(row=30, column=0, rowspan=20, columnspan=30, sticky=tk.N+tk.W, padx=10, pady=10)
 
     aSol = MPBSolutionRegistration(root, width=400, height=175)
     aSol.grid(row=30, column=30, rowspan=20, columnspan=20, sticky=tk.N+tk.W, padx=10, pady=10)
 
     frmOkCancel = tk.Frame(root)   # 확인/취소 버튼을 위한 프레임
 
-    btnOk = tk.Button(frmOkCancel, text='확인', fg='white', bg='blue', font=HUGE_FONT, command=lambda: register_image_problem(aTree))
-    btnCancel = tk.Button(frmOkCancel, text='취소', fg='white', bg='blue', font=HUGE_FONT, command=lambda: root.destroy())
+    btnOk = tk.Button(frmOkCancel, text='확인', fg='white', bg='blue', font=HUGE_FONT,
+                      command=lambda: temp_register_image_problem(aTree, aProblem, anAns, aSol))
+    btnCancel = tk.Button(frmOkCancel, text='취소', fg='white', bg='blue', font=HUGE_FONT,
+                      command=root.destroy)
     btnOk.grid(row=0, column=0, padx=5, pady=5)
-    btnCancel.grid(row=0, column=1, padx=5, pady=5)
+    btnCancel.grid(row=1, column=0, padx=5, pady=5)
 
-    frmOkCancel.grid(row=50, column=0, columnspan=50, padx=10, pady=10)
+    #frmOkCancel.grid(row=50, column=0, columnspan=50, padx=10, pady=10)
+    frmOkCancel.grid(row=0, column=50, rowspan=50, padx=10, pady=10)
 
     root.mainloop()

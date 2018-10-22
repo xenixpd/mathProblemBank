@@ -15,6 +15,7 @@ def loadProblemRegistration():
 	win.grab_set()
 
 	container = Frame(win)
+	container.config(width=1024, height=768)
 	
 	aTree = MPBCurriTreeView(container)	# 문제 유형
 	aTree.grid(row=0, column=0, rowspan=30, columnspan=30, padx=10, pady=10)
@@ -33,9 +34,10 @@ def loadProblemRegistration():
 	btnOk = Button(frmOkCancel, text='확인', fg='white', bg='blue', font=HUGE_FONT, command=lambda: register_problem_image(aTree, aProblem, anAns, aSol))
 	btnCancel = Button(frmOkCancel, text='취소', fg='white', bg='blue', font=HUGE_FONT, command=lambda: win.destroy())
 	btnOk.grid(row=0, column=0, padx=5, pady=5)
-	btnCancel.grid(row=0, column=1, padx=5, pady=5)
+	btnCancel.grid(row=1, column=0, padx=5, pady=5)
 	
-	frmOkCancel.grid(row=50, column=0, columnspan=50, padx=10, pady=10)
+	#frmOkCancel.grid(row=50, column=0, columnspan=50, padx=10, pady=10)
+	frmOkCancel.grid(row=0, column=50, rowspan=50, padx=10, pady=10)
 
 	container.grid()
 

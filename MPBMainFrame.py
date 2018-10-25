@@ -13,6 +13,15 @@ def load_problem_registration():
 
 	#win.mainloop()
 
+def load_problem_registration_with_source(): # 관리자만 사용할 수 있게 할 것
+	win = Toplevel()
+	win.title('문제 등록(그림)')
+	win.resizable(width=False, height=False)
+	win.grab_set()
+
+	container = MPBProblemImageRegistrationWithSource(win, 768)
+	container.grid(sticky="nw")
+
 def exit_MPB():
 	root.destroy()
 
@@ -20,7 +29,7 @@ def doNothing():
 	print("좋아요. 아주 좋아요")
 
 root = Tk()
-tk.Tk.iconbitmap(root, default="sum64.ico")
+tk.Tk.iconbitmap(root, default=".\\icon\\sum64.ico")
 tk.Tk.wm_title(root, "수학 문제 은행")
 
 # 주메뉴(메뉴바)
@@ -35,9 +44,18 @@ mainMenu.add_cascade(label="문제 등록", menu=registerProblemMenu)
 
 # 메뉴 항목 추가
 registerProblemMenu.add_command(label="문제(그림) 등록", command=load_problem_registration)
-registerProblemMenu.add_command(label="New", command=doNothing)
+registerProblemMenu.add_command(label="문제(그림) 등록: 관리자용, 출처 항목 추가", command=load_problem_registration_with_source) # 관리자 전용 기능
+registerProblemMenu.add_command(label="폴더 단위 문제(그림) 등록", command=doNothing)
 registerProblemMenu.add_separator()
 registerProblemMenu.add_command(label="종료", command=exit_MPB)
+
+
+# 메뉴 항목: 문제 편집
+
+# 먼저 주메뉴에 등록
+editProblemMenu = Menu(mainMenu)
+mainMenu.add_cascade(label="문제 편집", menu=editProblemMenu) # 관리자 전용 기능
+
 
 # 메뉴 항목: 문제 검색
 
@@ -49,6 +67,8 @@ mainMenu.add_cascade(label="문제 검색", menu=searchProblemMenu)
 searchProblemMenu.add_command(label="기본 검색", command=doNothing)
 searchProblemMenu.add_command(label="Cut", command=doNothing)
 searchProblemMenu.add_command(label="Paste", command=doNothing)
+
+
 
 # 주 도구바(툴바)
 mainToolbar = Frame(root, bg="blue")

@@ -788,6 +788,8 @@ class MPBSolutionSelection(tk.Frame):
 
         return isUsed
 
+        
+
 class MPBSourceTreeView(tk.Frame):
     def __init__(self, parent, treeHeight=20, *args, **kwargs):
         tk.Frame.__init__(self, parent)

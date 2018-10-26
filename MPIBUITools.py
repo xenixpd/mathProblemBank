@@ -3,6 +3,7 @@ from tkinter import ttk, filedialog, messagebox
 from PIL import ImageTk, Image, ImageGrab
 import sqlite3
 import time
+import shutil
 
 
 
@@ -38,12 +39,16 @@ class MPIBSourceTree(tk.Frame):
 
         self.showID = showID
 
+        #s = ttk.Style() # ttk에 적용할 스타일
+        #s.configure("WhiteBlack.Treeview", foreground='white', background='black', fieldbackground='gray')
+
         self.lblTitle = tk.Label(self, text=title, font=HUGE_FONT, fg=fg) # 제목
 
         treeContainer = tk.Frame(self) # 트리와 스크롤바를 담는 그릇
         treeContainer.grid_rowconfigure(0, weight=1)
         treeContainer.grid_columnconfigure(0, weight=1)
 
+        #self.trvSource = ttk.Treeview(treeContainer, height=treeHeight, selectmode='browse', style="WhiteBlack.Treeview") # 트리 만들기
         self.trvSource = ttk.Treeview(treeContainer, height=treeHeight, selectmode='browse') # 트리 만들기
         self.trvSource.bind('<<TreeviewSelect>>', self.treeview_selected) # 클릭 시 실행할 함수
 
@@ -816,8 +821,9 @@ class MPIBProblemImageSelection(tk.Frame):
         lblTitle = tk.Label(self, text='<문제 그림 선택>', font=HUGE_FONT, fg='blue')
         
         # 그림 선택
+        self.imageFileName = "problem"
         self.problemSelection = MPIBImageSelection(self, useTitle=False, imageWidth=imageWidth, imageHeight=imageHeight,
-                                                   imagePos=imagePos, temporaryImageFileNameOnly="problem")
+                                                   imagePos=imagePos, temporaryImageFileNameOnly=self.imageFileName)
 
         footer = tk.Frame(self) # 단 수와 예상 난이도를 담을 그릇
         footer.grid_columnconfigure(0, weight=1)
@@ -847,6 +853,12 @@ class MPIBProblemImageSelection(tk.Frame):
 
     def getDifficulty(self):
         return self.difficulty.get()
+
+    def getImageFileName(self):
+        return self.imageFileName
+
+    def initialize_image(self):
+        self.problemSelection.initialize_image()
 
 
 
@@ -900,12 +912,89 @@ class MPIBAnswerImageSelection(tk.Frame):
         self.txtSubjAns = tk.Entry(frmSubjAns, textvariable=self.enteredAns)
         self.txtSubjAns.grid(row=0, column=1, sticky="ew")
 
+        self.imageFileName = "answer"
         self.answerSelection = MPIBImageSelection(self, useTitle=False, imageWidth=imageWidth, imageHeight=imageHeight,
-                                                  imagePos=imagePos, temporaryImageFileNameOnly="answer")
+                                                  imagePos=imagePos, temporaryImageFileNameOnly=self.imageFileName)
         self.answerSelection.grid(row=4, column=1, padx=5, pady=5, sticky="nsew")
 
-    def ansType(self):
+    def getAnsType(self):
         return int(self.ansTypeChoice.get())
+
+    def checkObjectiveAnswer(self):
+        objAns = self.cbbObjAns.get()
+
+        if objAns == '':
+            return False
+
+        conn = sqlite3.connect("mathProblemDB.db")  # SQLite DB에 연결
+        cur = conn.cursor() # Connection으로부터 Cursor 생성
+        cur.execute("SELECT ansNo FROM tblObjAns WHERE ansNo = ?", (objAns,))  # SQL 실행
+        rows = cur.fetchone()   # 데이타 fetch
+
+        if rows == None:
+            isOk = False
+        else:
+            isOk = True
+
+        conn.close()
+
+        return isOk
+
+    def getObjectiveAnswer(self):
+        if self.checkObjectiveAnswer():
+            return int(self.cbbObjAns.get())
+        else:
+            return 0
+
+    def getSubjectiveTextAnswer(self):
+        return self.txtSubjAns.get()
+
+    def isDefaultImageUsed(self):
+        return self.answerSelection.isDefaultImageUsed
+
+    def getImageFileName(self):
+        return self.imageFileName
+
+    def initialize_image(self):
+        self.answerSelection.initialize_image()
+
+
+
+class MPIBSolutionImageSelection(tk.Frame):
+    def __init__(self, parent, imageWidth=400, imageHeight=300, imagePos=tk.N, *args, **kwargs):
+        tk.Frame.__init__(self, parent)
+
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        # 제목
+        lblTitle = tk.Label(self, text='<풀이 그림 선택>', font=HUGE_FONT, fg='blue')
+        
+        # 그림 선택
+        self.imageFileName = "solution"
+        self.solutionSelection = MPIBImageSelection(self, useTitle=False, imageWidth=imageWidth, imageHeight=imageHeight,
+                                                   imagePos=imagePos, temporaryImageFileNameOnly=self.imageFileName)
+
+        self.columns = MPIBColumnsUsedComboBox(self, boxWidth=4) # 단 수
+
+        lblTitle.grid(row=0, column=0, padx=5, pady=5, sticky="nw")
+        self.solutionSelection.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+        self.columns.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
+
+    def isDefaultImageUsed(self):
+        return self.solutionSelection.isDefaultImageUsed
+
+    def checkColumns(self):
+        return self.columns.check()
+
+    def getColumns(self):
+        return self.columns.get()
+
+    def getImageFileName(self):
+        return self.imageFileName
+
+    def initialize_image(self):
+        self.solutionSelection.initialize_image()
 
 
 
@@ -921,20 +1010,20 @@ class MPIBProblemImageRegistration(tk.Frame):
         self.curri = MPIBCurriTree(self, showID=False)
         self.curri.grid(row=0, column=0, sticky="nsew")
 
-        self.problem = MPIBProblemImageSelection(self)
-        self.problem.grid(row=0, column=1, sticky="nsew")
+        self.prob = MPIBProblemImageSelection(self)
+        self.prob.grid(row=0, column=1, sticky="nsew")
 
         self.ans = MPIBAnswerImageSelection(self, imageWidth=400, imageHeight=100)
         self.ans.grid_columnconfigure(1, weight=0)
         self.ans.grid(row=1, column=0, sticky="nsew")
 
-        self.sol = MPIBImageSelection(self, title='<풀이 정보(선택)>')
+        self.sol = MPIBSolutionImageSelection(self, imageWidth=400, imageHeight=150)
         self.sol.grid(row=1, column=1, sticky="nsew")
 
         frmOkCancel= tk.Frame(self)
         frmOkCancel.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
 
-        btnOk = tk.Button(frmOkCancel, text='확인', fg='white', bg='blue', font=HUGE_FONT), command=self.register_image_problem)
+        btnOk = tk.Button(frmOkCancel, text='확인', fg='white', bg='blue', font=HUGE_FONT, command=self.register_image_problem)
         btnOk.grid(row=0, column=0, padx=5)
 
         btnCancel = tk.Button(frmOkCancel, text='취소', fg='white', bg='blue', font=HUGE_FONT, command=parent.destroy)
@@ -942,88 +1031,83 @@ class MPIBProblemImageRegistration(tk.Frame):
 
     def register_image_problem(self):
         # 문제 유형 ID
-        problemTypeID = self.curri.getProblemTypeID())
+        problemTypeID = self.curri.getProblemTypeID()
 
         if problemTypeID == 0: # 문제 유형 ID. 문제 유형이 아니거나(즉, 책, 부, 장, 절) 선택한 것이 없으면 0을 반환한다.
             messagebox.showerror("문제 유형 오류", "문제 유형을 선택하세요.")
             return
 
         # 문제 그림
-        if self.problem.isDefaultImageUsed:
+        if self.prob.isDefaultImageUsed():
             messagebox.showerror("문제 그림 없음", "문제 그림을 선택하세요.")
             return
 
         # 문제 단 수
-        columnsUsed = self.problem.getColumns()
+        columnsUsed = self.prob.getColumns()
 
         if columnsUsed == 0:
             messagebox.showerror("단의 개수 오류", "문제의 편집 시 사용할 단의 개수를 선택하세요.")
             return
         
         # 예상 난이도
-        diff = self.problem.getDifficulty()
+        diff = self.prob.getDifficulty()
 
         if diff == 0:
             messagebox.showerror("난이도 오류", "난이도를 선택하세요.")
             return
 
         # 답 형식
-        ansType = self.ans.ansType()
+        ansType = self.ans.getAnsType()
 
         #if not (ansType == 1 or ansType == 2):
         #    messagebox.showerror("답 형식 오류", "답 형식을 선택하세요.")
         #    return
 
         ansType2 = 0 # 1: 객관식 답, 2: 주관식 답 + 직접 입력, 3: 주관식 답 + 그림
-        objAns = ''
-        subjAns = ''
 
         # 답
         if ansType == 1: # 객관식 답일 경우
-            if not ans.check_objective_answer():
+            objAns = self.ans.getObjectiveAnswer()
+
+            if objAns == 0:
                 messagebox.showerror("객관식 답 오류", "객관식 답을 선택하세요.")
                 return
             else:
-                objAns = int(ans.cbbObjAns.get())
                 ansType2 = 1
         elif ansType == 2: # 주관식 답일 경우
-            subjAnsText = ans.txtSubjAns.get()
+            subjAnsText = self.ans.getSubjectiveTextAnswer()
 
-            if subjAnsText == '' and ans.isDefaultImageUsed: # 직접 입력한 값도 없고 그림도 없으면 오류
+            if subjAnsText == '' and self.ans.isDefaultImageUsed(): # 직접 입력한 값도 없고 그림도 없으면 오류
                 messagebox.showerror("주관식 답 오류", "주관식 답을 직접 입력하거나 그림을 선택하세요.")
                 return
             elif subjAnsText != '':
-                subjAns = subjAnsText
                 ansType2 = 2
             else:
-                subjAns = ''
                 ansType2 = 3
 
         # 풀이 단 수
-        solColumnsUsed = 1
+        solColumnsUsed = self.sol.getColumns()
 
-        if not sol.check_columns_used():
+        if not self.sol.isDefaultImageUsed() and solColumnsUsed == 0:
             messagebox.showerror("풀이의 단의 개수 오류", "풀이의 편집 시 사용할 단의 개수를 선택하세요.")
             return
-        else:
-            solColumnsUsed = int(sol.cbbColumnsUsed.get())
 
         # 미리 저장해 둔 임시 그림 파일들을 저장용 폴더로 복사
         filename = str(current_time_as_integer())
 
-        shutil.copy("./problem.png", "./MPIB/" + filename + ".png")
+        shutil.copy(self.prob.getImageFileName()+".png", "./MPIB/" + filename + ".png")
 
         if ansType2 == 3:
-            shutil.copy("./answer.png", "./MPIB/" + filename + "_ans.png")
+            shutil.copy(self.ans.getImageFileName()+".png", "./MPIB/" + filename + "_ans.png")
 
-        if not sol.isDefaultImageUsed:
-            shutil.copy("./solution.png", "./MPIB/" + filename + "_sol.png")
+        if not self.sol.isDefaultImageUsed():
+            shutil.copy(self.sol.getImageFileName()+".png", "./MPIB/" + filename + "_sol.png")
         
         # 데이타베이스에 추가
-        conn = sqlite3.connect("mathProblemDB.db") # SQLite DB에 연결
+        conn = sqlite3.connect(DB_NAME) # SQLite DB에 연결
         cur = conn.cursor() # Connection으로부터 Cursor 생성
 
-        if sol.isDefaultImageUsed: # 풀이 파일 없음
+        if self.sol.isDefaultImageUsed(): # 풀이 파일 없음
             if ansType2 == 1: # 객관식
                 sqlStr = """INSERT INTO tblMPIB
                             (filename, problemTypeID, columns, difficulty, ansType, objAns, subjAnsImageExists, solImageExists)
@@ -1033,7 +1117,7 @@ class MPIBProblemImageRegistration(tk.Frame):
                 sqlStr = """INSERT INTO tblMPIB
                             (filename, problemTypeID, columns, difficulty, ansType, subjAns, subjAnsImageExists, solImageExists)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)"""
-                cur.execute(sqlStr, (filename, problemTypeID, columnsUsed, diff, ansType, subjAns, False, False))
+                cur.execute(sqlStr, (filename, problemTypeID, columnsUsed, diff, ansType, subjAnsText, False, False))
             else: # 주관식 + 그림 답
                 sqlStr = """INSERT INTO tblMPIB
                             (filename, problemTypeID, columns, difficulty, ansType, subjAnsImageExists, solImageExists)
@@ -1049,7 +1133,7 @@ class MPIBProblemImageRegistration(tk.Frame):
                 sqlStr = """INSERT INTO tblMPIB
                             (filename, problemTypeID, columns, difficulty, ansType, subjAns, subjAnsImageExists, solImageExists, solColumns)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"""
-                cur.execute(sqlStr, (filename, problemTypeID, columnsUsed, diff, ansType, subjAns, False, True, solColumnsUsed))
+                cur.execute(sqlStr, (filename, problemTypeID, columnsUsed, diff, ansType, subjAnsText, False, True, solColumnsUsed))
             else: # 주관식 + 그림 답
                 sqlStr = """INSERT INTO tblMPIB
                             (filename, problemTypeID, columns, difficulty, ansType, subjAnsImageExists, solImageExists, solColumns)
@@ -1060,19 +1144,19 @@ class MPIBProblemImageRegistration(tk.Frame):
         conn.close()
 
         # 문제 등록에 성공했음을 알리고 보조 유형을 등록할 것인지 묻는다.
-        if messagebox.askyesno("문제 등록 성공", "문제 등록에 성공했습니다.\n보조 유형을 추가하시겠습니까?"):
-            win = tk.Toplevel()
-            win.title("보조 유형 등록")
-            win.grab_set()
+        #if messagebox.askyesno("문제 등록 성공", "문제 등록에 성공했습니다.\n보조 유형을 추가하시겠습니까?"):
+        #    win = tk.Toplevel()
+        #    win.title("보조 유형 등록")
+        #    win.grab_set()
 
-            container = MPBAuxProblemTypeRegistration(win, cur.lastrowid)
-            container.grid()
+        #    container = MPBAuxProblemTypeRegistration(win, cur.lastrowid)
+        #    container.grid()
 
         # 초기화
-        prob.initialize_image()
-        ans.initialize_image()
-        ans.txtSubjAns.delete(0, tk.END)
-        sol.initialize_image()
+        self.prob.initialize_image()
+        self.ans.initialize_image()
+        self.ans.txtSubjAns.delete(0, tk.END)
+        self.sol.initialize_image()
 
 
 
@@ -1081,8 +1165,7 @@ if __name__ == '__main__':
     root.grid_rowconfigure(0, weight=1)
     root.grid_columnconfigure(0, weight=1)
 
-    #aSource = MPIBSourceTree(root, showID=True)
-    #aSource.grid(sticky="nsew")
+    test = MPIBSourceTree(root, showID=True)
 
     #aTree = MPIBCurriTree(root, showID=False)
     #aTree.grid(sticky="nsew")
@@ -1099,7 +1182,8 @@ if __name__ == '__main__':
 
     #test = MPIBProblemImageSelection(root)
     #test = MPIBAnswerImageSelection(root)
-    test = MPIBProblemImageRegistration(root)
+    #test = MPIBSolutionImageSelection(root)
+    #test = MPIBProblemImageRegistration(root)
     test.grid(row=0, column=0, sticky="nsew")
 
     root.mainloop()

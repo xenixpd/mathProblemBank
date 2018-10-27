@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, filedialog
+from PIL import ImageTk, Image
 from openpyxl import load_workbook
+import os
 
 TREEVIEW_COLUMN_WIDTH = 75
 TREEVIEW_COLUMN_MIN_WIDTH = 50
@@ -96,10 +98,20 @@ class MPIBProblemExcelLoading(tk.Frame):
         self.problemSheet.configure(xscrollcommand=trvXScroll.set)
         trvXScroll.grid(row=1, column=0, sticky="ew")
 
+        self.problemSheet.bind('<Double-1>', self.checkAProblem) # 더블 클릭 시 개별 확인
+
     def selectExcelFile(self):
         excelFilename = filedialog.askopenfilename(filetypes=(("Excel 파일", "*.xls; *.xlsx; *.xlsm"),))
 
-        if excelFilename != '':
+        if excelFilename != '': # 선택한 파일이 있으면
+            # 우선 기존 내용 삭제
+            self.lstSheet.delete(0, 'end') # 시트 목록부터 삭제
+            
+            for i in self.problemSheet.get_children(): # 트리 내용도 삭제
+                self.problemSheet.delete(i)
+            self.problemSheet.heading('#0', text='')
+
+            # 새 내용 기록
             self.lblSelectExcelFile.config(text=excelFilename)
             self.lblSheet.config(text='시트를 선택하세요.', fg='green')
 
@@ -108,9 +120,8 @@ class MPIBProblemExcelLoading(tk.Frame):
             for ws in self.wb.sheetnames:
                 self.lstSheet.insert(tk.END, ws)
     
-    def showSheetInfo(self, event):
-        # 우선 기존 내용 삭제
-        for i in self.problemSheet.get_children():
+    def showSheetInfo(self, event):        
+        for i in self.problemSheet.get_children(): # 우선 기존 내용 삭제
             self.problemSheet.delete(i)
             
         ws = self.wb[self.lstSheet.get(self.lstSheet.curselection())]
@@ -138,6 +149,30 @@ class MPIBProblemExcelLoading(tk.Frame):
                                          value[7], value[8], value[9], value[10]))
         else:
             self.problemSheet.heading('#0', text='')
+
+    def checkAProblem(self, event):
+        region = self.problemSheet.identify('region', event.x, event.y)
+
+        if region == 'tree' or region == 'cell':
+            aFolder = self.problemSheet.heading('#0')['text']
+
+            if not os.path.exists(aFolder)):
+                break
+
+            aFile = self.problemSheet.identify('item', event.x, event.y)
+            aPath = os.path.join(aFolder, aFile)
+
+            #aWin = tk.Toplevel()
+            #aWin.title(aPath)
+            #aWin.grab_set()
+            #aWin.grid_rowconfigure(0, weight=1)
+            #aWin.grid_columnconfigure(0, weight=1)
+
+            #aLabel = tk.Label(aWin, width=400, height=300)
+            #self.img = Image.open(aPath)
+            #self.original = ImageTk.PhotoImage(self.img)
+            #aLabel.config(image=self.original)
+            #aLabel.grid(row=0, column=0)
 
         
 

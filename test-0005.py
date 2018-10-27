@@ -1,5 +1,3 @@
-# spreadsheet 형태(보류)
-
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from PIL import ImageTk, Image
